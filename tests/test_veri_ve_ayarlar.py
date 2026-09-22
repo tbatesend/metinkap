@@ -27,6 +27,16 @@ yedek_gec = (open(mk.HISTORY_JSON, encoding="utf-8").read()
              if os.path.exists(mk.HISTORY_JSON) else None)
 
 print("[A] Ayar yazimi: iki thread ayni anda (eskiden ayarlar sessizce kayboluyordu)")
+# ayar_kaydet istisnayi YUTUP logluyor; sadece firlatilan hataya bakmak
+# basarisiz yazimlari gormuyordu. Log satir sayisini da sayiyoruz.
+def log_satiri():
+    try:
+        with open(mk.LOG_PATH, encoding="utf-8", errors="replace") as f:
+            return sum(1 for ln in f if "config yazilamadi" in ln)
+    except FileNotFoundError:
+        return 0
+
+log_once = log_satiri()
 hatalar = []
 bozuk = [0]
 
@@ -41,6 +51,8 @@ def yazar(etiket):
 
 
 def okuyucu():
+    # config'i surekli acik tutup os.replace'i zorluyoruz (yedekleme yazilimi,
+    # virus tarayici ya da baska bir kopya ayni seyi yapabilir)
     for _ in range(400):
         try:
             with open(mk.CONFIG_PATH, encoding="utf-8") as f:
@@ -60,7 +72,9 @@ for t_ in ths:
     t_.start()
 for t_ in ths:
     t_.join()
+basarisiz = log_satiri() - log_once
 chk("800 eszamanli yazimda istisna yok", not hatalar, hatalar[:2])
+chk("sessizce basarisiz olan yazim yok", basarisiz == 0, f"{basarisiz} yazim kayboldu")
 chk("okuyucu hic bozuk JSON gormedi", bozuk[0] == 0, f"{bozuk[0]} kez")
 with open(mk.CONFIG_PATH, encoding="utf-8") as f:
     chk("son dosya gecerli JSON", isinstance(json.load(f), dict))

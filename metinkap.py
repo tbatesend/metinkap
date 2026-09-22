@@ -112,9 +112,18 @@ SATIR_MODU_ANAHTARI = {"satir": "set.mode_lines", "akilli": "set.mode_smart",
 KUTU_MODLARI = ("girinti", "tablo")
 
 
+LOG_SINIR = 256 * 1024
+
+
 def _log(msg):
     try:
         os.makedirs(DATA_DIR, exist_ok=True)
+        # Sinirsiz buyumesin: dolunca bir onceki dosyanin uzerine devret.
+        if os.path.getsize(LOG_PATH) > LOG_SINIR:
+            os.replace(LOG_PATH, LOG_PATH + ".1")
+    except OSError:
+        pass
+    try:
         with open(LOG_PATH, "a", encoding="utf-8") as f:
             f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
     except Exception:
@@ -170,14 +179,27 @@ def ayar_yukle():
 _yazma_kilidi = threading.Lock()
 
 
-def _atomik_json_yaz(yol, veri, girinti=2):
+def _atomik_json_yaz(yol, veri, girinti=2, deneme=6):
+    """Once gecici dosyaya yazip yerine tasir: yarida kesilirse eski dosya kalir.
+
+    os.replace, hedefi o anda baska biri (okuyan bir thread, yedekleme yazilimi,
+    virus tarayici) acik tutuyorsa Windows'ta PermissionError/WinError 5 verir.
+    Bu genellikle birkac on milisaniyede gecen bir durum, o yuzden kisa araliklarla
+    tekrar deniyoruz — yoksa kullanicinin ayari sessizce kayboluyor."""
     gecici = f"{yol}.{os.getpid()}.{threading.get_ident()}.tmp"
     with _yazma_kilidi:
         os.makedirs(DATA_DIR, exist_ok=True)
         try:
             with open(gecici, "w", encoding="utf-8") as f:
                 json.dump(veri, f, ensure_ascii=False, indent=girinti)
-            os.replace(gecici, yol)        # yarida kesilirse eski dosya kalir
+            for i in range(deneme):
+                try:
+                    os.replace(gecici, yol)
+                    return
+                except PermissionError:
+                    if i == deneme - 1:
+                        raise
+                    time.sleep(0.03 * (i + 1))
         except Exception:
             try:
                 os.remove(gecici)
