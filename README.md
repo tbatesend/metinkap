@@ -28,6 +28,7 @@ doesn't fight it). Then run `baslat.bat` — a tray icon appears next to the clo
 |---|---|
 | `baslat.bat` | Runs it silently |
 | `konsol-ile-baslat.bat` | Runs it with a console (for troubleshooting) |
+| `testleri-calistir.bat` | Runs the test suites |
 | `otomatik-baslat.bat` | Adds/removes it from Windows startup — Settings does the same |
 
 ## Use
@@ -208,8 +209,15 @@ User data lives in `%APPDATA%\MetinKap\`:
 ## Tests
 
 ```
-python tests/calistir.py           # everything
-python tests/calistir.py --hizli   # only the suites that open no windows
+testleri-calistir.bat              # everything
+testleri-calistir.bat --hizli      # only the suites that open no windows
+```
+
+The tests need the packages, so they have to run with the interpreter from the
+virtualenv — the `.bat` above takes care of that. By hand it would be:
+
+```
+"%USERPROFILE%envs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
 Six suites, 100+ checks: settings and history storage (including concurrent

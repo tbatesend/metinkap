@@ -28,6 +28,7 @@ olmaz). Sonra `baslat.bat` ile çalıştır — saat yanında tepsi ikonu çıka
 |---|---|
 | `baslat.bat` | Sessizce çalıştırır |
 | `konsol-ile-baslat.bat` | Konsol açık çalıştırır (sorun ararken) |
+| `testleri-calistir.bat` | Test takımlarını çalıştırır |
 | `otomatik-baslat.bat` | Windows açılışına ekler / çıkarır — Ayarlar'dan da yapılabilir |
 
 ## Kullanım
@@ -205,8 +206,15 @@ Kullanıcı verisi `%APPDATA%\MetinKap\` altında:
 ## Testler
 
 ```
-python tests/calistir.py           # hepsi
-python tests/calistir.py --hizli   # yalnızca pencere açmayanlar
+testleri-calistir.bat              # hepsi
+testleri-calistir.bat --hizli      # yalnızca pencere açmayanlar
+```
+
+Testlerin paketlere ihtiyacı var, yani sanal ortamdaki yorumlayıcıyla çalışmaları
+gerekiyor — yukarıdaki `.bat` bunu hallediyor. Elle yazacak olsan:
+
+```
+"%USERPROFILE%envs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
 Altı takım, 100+ kontrol: ayar ve geçmiş saklama (eşzamanlı yazım dahil), metin
