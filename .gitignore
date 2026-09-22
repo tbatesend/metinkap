@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Bu proje sanal ortami depo disinda tutuyor (%USERPROFILE%\venvs\metinkap),
+# ama yanlislikla iceri kurulursa da commit'lenmesin.
+env/
+
+# Calisma zamani ciktilari — kullanici verisi %APPDATA%\MetinKap altinda,
+# yine de gelistirirken buraya dusen kopyalar icin:
+*.log
+config.json
+gecmis.json
+gecmis.txt
+son_kirpim.png
+
+# Isletim sistemi / editor
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

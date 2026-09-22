@@ -1,0 +1,9 @@
+# Metin dosyalarini normalize et, calisma kopyasinda CRLF kullan (Windows projesi)
+* text=auto eol=crlf
+
+# Batch dosyalari Windows'ta CRLF olmali
+*.bat text eol=crlf
+
+# Ikili dosyalara dokunma
+*.png binary
+*.ico binary

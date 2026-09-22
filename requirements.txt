@@ -1,0 +1,17 @@
+# MetinKap — Windows only, Python 3.10+
+# Kurulum: pip install -r requirements.txt
+# (kurulum.bat bunu sanal ortam olusturarak otomatik yapar)
+
+pillow>=10.0
+pystray>=0.19
+
+# Windows'un kendi OCR motoruna (Windows.Media.Ocr) erisim.
+# winsdk yerine modüler winrt paketleri: winsdk'nin Python 3.14 icin
+# derlenmis dagitimi yok, bunlarin var.
+winrt-Windows.Media.Ocr>=3.0
+winrt-Windows.Graphics.Imaging>=3.0
+winrt-Windows.Storage>=3.0
+winrt-Windows.Storage.Streams>=3.0
+winrt-Windows.Globalization>=3.0
+winrt-Windows.Foundation>=3.0
+winrt-Windows.Foundation.Collections>=3.0
