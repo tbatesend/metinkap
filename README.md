@@ -167,8 +167,16 @@ What the measurements settled:
   PaddleOCR and Surya cannot be installed on Python 3.14 at all; EasyOCR and docTR drag in
   ~2.5 GB of torch. Cloud OCR would send every crop to a server for ~30× the latency.
 
-Known limit: with meaningless all-caps runs and a leading `İ`, the engine sometimes gets the
-case wrong. It is dictionary-assisted, so this doesn't show up in ordinary text.
+Known limits:
+
+- **Underscores in code are unreliable.** The Windows engine often drops `_`, and in
+  monospace fonts it can lose the whole identifier: `self._gecmis_kirli = False` was read as
+  `self = False` in testing. Recovering the underscore from pixel data works for proportional
+  fonts (Segoe UI came back perfect) but not for monospace ones, because the engine never
+  reports the word at all — there is nothing to repair. If you are grabbing code, check the
+  result; `Ctrl+Shift+D` opens it for editing before it reaches the clipboard.
+- With meaningless all-caps runs and a leading `İ`, the engine sometimes gets the case wrong.
+  It is dictionary-assisted, so this doesn't show up in ordinary prose.
 
 If nothing comes out: select a wider area (a whole line rather than one word), or switch the
 language.

@@ -165,8 +165,16 @@ Add-WindowsCapability -Online -Name "Language.OCR~~~fr-FR~0.0.1.0"
   Surya Python 3.14'e zaten kurulamıyor; EasyOCR ve docTR ~2.5 GB torch getiriyor. Bulut OCR
   ise her kırpmayı ~30 kat gecikmeyle bir sunucuya gönderirdi.
 
-Bilinen sınır: anlamsız büyük harf dizilerinde ve satır başındaki `İ` harfinde motor bazen
-büyük/küçük harfi karıştırıyor. Sözlük destekli çalıştığı için normal metinde görülmüyor.
+Bilinen sınırlar:
+
+- **Koddaki alt çizgiler güvenilir değil.** Windows motoru `_` karakterini sık sık düşürüyor;
+  monospace fontlarda tanımlayıcının tamamını kaybedebiliyor: testte
+  `self._gecmis_kirli = False` satırı `self = False` olarak okundu. Alt çizgiyi piksel
+  verisinden geri kazanmak oransal fontlarda işe yarıyor (Segoe UI'da eksiksiz döndü) ama
+  monospace'te yaramıyor, çünkü motor kelimeyi hiç raporlamıyor — onarılacak veri yok. Kod
+  yakalıyorsan sonucu kontrol et; `Ctrl+Shift+D` metni panoya gitmeden önce düzenlemeye açar.
+- Anlamsız büyük harf dizilerinde ve satır başındaki `İ` harfinde motor bazen büyük/küçük
+  harfi karıştırıyor. Sözlük destekli çalıştığı için normal düz metinde görülmüyor.
 
 Metin çıkmazsa: daha geniş bir alan seç (tek kelime yerine satırın tamamı) veya dili değiştir.
 
