@@ -143,6 +143,8 @@ EN = {
     "set.press_keys": "Press the key combination…",
     "set.key_unusable": "That key cannot be used as a shortcut.",
     "set.need_modifier": "Add at least one modifier (Ctrl / Alt / Shift / Win).",
+    "set.save_failed": "Could not save — config.json could not be written. "
+                       "See error.log.",
 
     # --- geçmiş sekmesi ---
     "hist.title": "History",
@@ -152,6 +154,7 @@ EN = {
     "hist.saved": "Saved.",
     "hist.deleted": "Entry deleted.",
     "hist.cleared": "History cleared.",
+    "hist.clear_failed": "History was cleared here, but the file on disk could not be removed. See error.log.",
     "hist.clear_all": "Clear all",
     "hist.unsaved": "Unsaved changes — press Save or they are lost when you switch.",
     "hist.edit_hint": "Editable · Ctrl+S saves, Ctrl+Enter copies",
@@ -159,13 +162,16 @@ EN = {
     # --- hakkında sekmesi ---
     "about.title": "About",
     "about.desc": "Grabs text from anywhere on screen and puts it on the clipboard. "
-                  "Uses the OCR engine built into Windows: no install, no internet, "
-                  "15–50 ms per capture.",
+                  "Uses the OCR engine built into Windows: no install, no internet. "
+                  "Reading takes about 15 ms for a line, 100 ms for a paragraph and "
+                  "250 ms for a screenful.",
     "about.accuracy": "Measured accuracy",
-    "about.col_size": "Size",
-    "about.col_raw": "No upscale",
-    "about.col_x3": "×3 (used)",
-    "about.accuracy_note": "Measured over 5 fonts × 5 sizes. Contrast stretching and "
+    "about.col_scale": "Upscale",
+    "about.col_acc": "Accuracy",
+    "about.used": "(used)",
+    "about.accuracy_note": "Measured over 6 fonts × 6 sizes, on text containing numbers "
+                           "and punctuation. ×3 reads clean prose slightly better but "
+                           "corrupts figures, so ×2.5 is used. Contrast stretching and "
                            "greyscale conversion were tried and dropped — both lowered "
                            "accuracy.",
     "about.files": "Files",
@@ -196,6 +202,7 @@ EN = {
                 "   ·   Enter: last area   ·   Esc: cancel",
     "toast.ready": "MetinKap ready  ·  {k}\nLanguage: {d}",
     "toast.copied": "Copied · {bilgi}\n{onizleme}",
+    "toast.pasted": "Pasted · {bilgi}\n{onizleme}",
     "toast.info": "{n} characters · {l} lines",
     "toast.info_ms": "{n} characters · {l} lines · {ms} ms",
     "toast.no_text": "No text found.\nSelect a wider area, or change the language "
@@ -331,6 +338,8 @@ TR = {
     "set.press_keys": "Tuş kombinasyonuna bas…",
     "set.key_unusable": "Bu tuş kısayol olarak kullanılamıyor.",
     "set.need_modifier": "En az bir yardımcı tuş gerekli (Ctrl / Alt / Shift / Win).",
+    "set.save_failed": "Kaydedilemedi — config.json yazılamadı. "
+                       "hata.log dosyasına bak.",
 
     "hist.title": "Geçmiş",
     "hist.subtitle": "Son {n} yakalama. Birine tıkla, sağda düzenle, geri kopyala.",
@@ -339,19 +348,23 @@ TR = {
     "hist.saved": "Kaydedildi.",
     "hist.deleted": "Kayıt silindi.",
     "hist.cleared": "Geçmiş temizlendi.",
+    "hist.clear_failed": "Geçmiş burada temizlendi ama diskteki dosya silinemedi. hata.log dosyasına bak.",
     "hist.clear_all": "Hepsini temizle",
     "hist.unsaved": "Kaydedilmemiş değişiklik var — Kaydet'e bas, yoksa geçince kaybolur.",
     "hist.edit_hint": "Düzenlenebilir · Ctrl+S kaydeder, Ctrl+Enter kopyalar",
 
     "about.title": "Hakkında",
     "about.desc": "Ekranın herhangi bir yerinden metni alıp panoya koyar. Windows'un "
-                  "kendi OCR motorunu kullanır: kurulum yok, internet yok, yakalama "
-                  "başına 15–50 ms.",
+                  "kendi OCR motorunu kullanır: kurulum yok, internet yok. Okuma "
+                  "bir satır için ~15 ms, bir paragraf için ~100 ms, ekran dolusu "
+                  "için ~250 ms sürüyor.",
     "about.accuracy": "Ölçülen doğruluk",
-    "about.col_size": "Punto",
-    "about.col_raw": "Büyütmesiz",
-    "about.col_x3": "×3 (kullanılan)",
-    "about.accuracy_note": "5 font × 5 punto üzerinde ölçüldü. Kontrast artırma ve gri "
+    "about.col_scale": "Büyütme",
+    "about.col_acc": "Doğruluk",
+    "about.used": "(kullanılan)",
+    "about.accuracy_note": "6 font × 6 punto üzerinde, sayı ve noktalama içeren metinle "
+                           "ölçüldü. ×3 temiz metni biraz daha iyi okuyor ama sayıları "
+                           "bozuyor, o yüzden ×2.5 kullanılıyor. Kontrast artırma ve gri "
                            "dönüşümü denendi, ikisi de doğruluğu düşürdüğü için elendi.",
     "about.files": "Dosyalar",
     "about.open_folder": "Veri klasörünü aç",
@@ -379,6 +392,7 @@ TR = {
                 "   ·   Enter: son alan   ·   Esc: iptal",
     "toast.ready": "MetinKap hazır  ·  {k}\nDil: {d}",
     "toast.copied": "Kopyalandı · {bilgi}\n{onizleme}",
+    "toast.pasted": "Yapıştırıldı · {bilgi}\n{onizleme}",
     "toast.info": "{n} karakter · {l} satır",
     "toast.info_ms": "{n} karakter · {l} satır · {ms} ms",
     "toast.no_text": "Metin bulunamadı.\nDaha geniş bir alan seç ya da Ayarlar'dan "

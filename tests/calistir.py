@@ -15,6 +15,7 @@ KOK = os.path.dirname(os.path.abspath(__file__))
 # (dosya, pencere_aciyor_mu)
 TAKIMLAR = [
     ("test_veri_ve_ayarlar.py", False),
+    ("test_ceviri_ve_kurtarma.py", False),
     ("test_metin_bicimleri.py", False),
     ("test_biriktirme.py", False),
     ("test_geri_yapistir.py", False),

@@ -275,6 +275,12 @@ class AyarPenceresi:
         self.bildirim = tk.Label(w, text="", bg=PANEL2, fg=METIN, font=(F, 10),
                                  padx=14, pady=8, anchor="w", justify="left")
 
+        self._bayat = False
+        # Pencere simge durumundayken gelen yakalamalar yeniden cizilmiyordu
+        # (asagidaki bayat bayragi), geri acildiginda da goster() calismadigi
+        # icin liste eski sirayi gosteriyordu. <Map> geri acilisi yakaliyor.
+        w.bind("<Map>", self._geri_acildi)
+
         self._serit_ciz()
         self.sekme_goster("yakala")
         w.update_idletasks()
@@ -332,6 +338,11 @@ class AyarPenceresi:
     def kapat(self):
         self._gecmis_kaydet_sessiz()
         self.win.withdraw()
+
+    def _geri_acildi(self, e):
+        if e.widget is self.win and self._bayat:
+            self._bayat = False
+            self.sekme_goster(self.aktif or "yakala")
 
     def goster(self):
         self.win.deiconify()
@@ -441,8 +452,10 @@ class AyarPenceresi:
             alt = tk.Frame(s, bg=BG)
             alt.pack(fill="x", pady=(10, 0))
             dugme(alt, t("capture.copy_again"),
-                  lambda: (self.app.panoya(metin),
-                           self.bilgi(t("hist.copied"), "iyi"))).pack(side="left")
+                  lambda: self.bilgi(*((t("hist.copied"), "iyi")
+                                       if self.app.panoya(metin)
+                                       else (t("toast.no_clipboard"), "kotu")))
+                  ).pack(side="left")
             tk.Label(alt, text=t("common.chars_lines", n=len(metin),
                                  l=metin.count("\n") + 1),
                      bg=BG, fg=SOLUK, font=(F, 9)).pack(side="left", padx=12)
@@ -699,7 +712,11 @@ class AyarPenceresi:
 
     def _ayar(self, anahtar, deger):
         self.cfg[anahtar] = deger
-        self.app.ayar_yaz()
+        if not self.app.ayar_yaz():
+            # Salt okunur config, dolu disk, dosyayi tutan bir tarayici... Sessiz
+            # kalirsak kullanici ayarin durdugunu sanip uygulamayi yeniden
+            # baslatinca eski haliyle karsilasiyor.
+            self.bilgi(t("set.save_failed"), "kotu")
 
     def _arayuz_dili(self, kod):
         if ceviri.aktif() == kod:
@@ -799,7 +816,10 @@ class AyarPenceresi:
                           bg=PANEL, fg=SOLUK, font=(F, 8), anchor="w", padx=12)
             e2.pack(fill="x", pady=(0, 8))
             for wdg in (kart, e1, e2):
-                wdg.bind("<Button-1>", lambda e, k=i: self._gecmis_sec(k))
+                # Indeks yerine kimlik: liste yeni bir yakalamayla kaydiginca
+                # indekse bagli kartlar baska kaydi aciyordu.
+                wdg.bind("<Button-1>",
+                         lambda e, kid=kayit["id"]: self._gecmis_sec_id(kid))
             self._gecmis_kartlar.append(kart)
 
         alt = tk.Frame(s, bg=BG)
@@ -826,6 +846,11 @@ class AyarPenceresi:
         self.gecmis_kutu.edit_reset()
         self._gecmis_kirli = False
         self._kaydet_dugmesini_tazele()
+
+    def _gecmis_sec_id(self, kimlik):
+        i = self.app.gecmis_bul(kimlik)
+        if i >= 0:
+            self._gecmis_sec(i)
 
     def _gecmis_sec(self, i):
         if 0 <= i < len(self.app.gecmis) and                 self.app.gecmis[i]["id"] == self._gecmis_id:
@@ -888,8 +913,13 @@ class AyarPenceresi:
 
     def _gecmis_kopyala(self):
         self._gecmis_kaydet_sessiz()
-        self.app.panoya(self._gecmis_metni())
-        self.bilgi(t("hist.copied"), "iyi", 1800)
+        # panoya_yaz bos metinde ve pano alinamadiginda False doner. Donusu
+        # yok saymak, kaydi bosaltip Kopyala'ya basan kullaniciya "kopyalandi"
+        # deyip panoda eski metni birakiyordu — Ctrl+V yanlis seyi yapistirir.
+        if self.app.panoya(self._gecmis_metni()):
+            self.bilgi(t("hist.copied"), "iyi", 1800)
+        else:
+            self.bilgi(t("toast.no_clipboard"), "kotu")
 
     def _gecmis_sil(self):
         self._gecmis_kirli = False
@@ -903,9 +933,14 @@ class AyarPenceresi:
     def _gecmis_temizle(self):
         self._gecmis_kirli = False
         self._gecmis_id = None
-        self.app.gecmis_temizle()
+        ok = self.app.gecmis_temizle()
         self.sekme_goster("gecmis")
-        self.bilgi(t("hist.cleared"), "iyi", 1800)
+        # Diskteki dosya silinemediyse "temizlendi" demek yaniltici: kullanici
+        # sildigini sanir, surec duzgun kapanmazsa kayitlar geri gelir.
+        if ok:
+            self.bilgi(t("hist.cleared"), "iyi", 1800)
+        else:
+            self.bilgi(t("hist.clear_failed"), "kotu")
 
     # -- sekme: hakkında --------------------------------------------------
     def _sekme_hakkinda(self):
@@ -922,10 +957,14 @@ class AyarPenceresi:
         bolum(s, t("about.accuracy"))
         tablo = tk.Frame(s, bg=PANEL, highlightthickness=1, highlightbackground=KENAR)
         tablo.pack(fill="x")
-        satirlar = [(t("about.col_size"), t("about.col_raw"), "×2", t("about.col_x3")),
-                    ("11pt", "94.0%", "97.4%", "99.6%"),
-                    ("14pt", "96.6%", "95.8%", "98.5%"),
-                    ("18pt", "99.6%", "100%", "100%")]
+        # README'deki olcek tablosuyla ayni sayilar. Burada bir ara "x3
+        # (kullanilan)" yaziyordu, oysa kod x2.5 kullaniyor ve README x3'u
+        # acikca eliyor — kullaniciya yanlis bilgi gidiyordu.
+        satirlar = [(t("about.col_scale"), t("about.col_acc")),
+                    ("×1", "80.15%"),
+                    ("×2", "91.03%"),
+                    ("×2.5 " + t("about.used"), "90.18%"),
+                    ("×3", "89.35%")]
         for i, sat in enumerate(satirlar):
             c = tk.Frame(tablo, bg=PANEL)
             c.pack(fill="x", padx=16,

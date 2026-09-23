@@ -160,11 +160,18 @@ def ayar_yukle():
         except Exception:
             cfg[anahtar] = VARSAYILAN[anahtar]
             degisti = True
+    # Ayri try'lar: ikisi tek blokta oldugunda bozuk bir gecmis_boyut,
+    # kullanicinin duzgun karartma ayarini da varsayilana ceker ve diske oyle
+    # yazardi. gecmis_boyut arayuzden duzenlenemiyor, yani elle config duzenleyen
+    # birinin tek yazim hatasi baska bir ayarini siliyordu.
     try:
         cfg["karartma"] = max(0.0, min(0.9, float(cfg["karartma"])))
-        cfg["gecmis_boyut"] = max(1, min(200, int(cfg["gecmis_boyut"])))
     except (TypeError, ValueError):
         cfg["karartma"] = VARSAYILAN["karartma"]
+        degisti = True
+    try:
+        cfg["gecmis_boyut"] = max(1, min(200, int(cfg["gecmis_boyut"])))
+    except (TypeError, ValueError):
         cfg["gecmis_boyut"] = VARSAYILAN["gecmis_boyut"]
         degisti = True
 
@@ -209,10 +216,15 @@ def _atomik_json_yaz(yol, veri, girinti=2, deneme=6):
 
 
 def ayar_kaydet(cfg):
+    """Basarili olursa True. Cagiran tarafin buna bakmasi gerekiyor: bir ara
+    hata sadece loglaniyordu ve arayuz yazilmamis bir ayara "Kaydedildi" diyordu.
+    Kullanici uygulamayi kapatip acana kadar ayarinin durdugunu saniyordu."""
     try:
         _atomik_json_yaz(CONFIG_PATH, cfg)
+        return True
     except Exception as e:
         _log(f"config yazilamadi: {e}")
+        return False
 
 
 # --------------------------------------------------------------------------
@@ -1135,6 +1147,12 @@ _MUTEX = None
 
 class MetinKap:
     def __init__(self):
+        # ayar_yukle() dosya yoksa varsayilanlari YAZIYOR, yani kendisinden
+        # sonra CONFIG_PATH her zaman var. Ilk acilis kontrolu asagida, yukleme
+        # sonrasinda yapiliyordu ve hep False cikiyordu: ilk kurulumda ayar
+        # penceresi hic acilmiyor, kullanici tepsi ikonunu kendi bulmak zorunda
+        # kaliyordu. Bu yuzden dosyaya yuklemeden ONCE bakiyoruz.
+        ilk_acilis = not os.path.exists(CONFIG_PATH)
         self.cfg = ayar_yukle()
         ceviri.dili_ayarla(self.cfg["arayuz_dil"])
         self.ocr = Ocr()
@@ -1152,7 +1170,6 @@ class MetinKap:
         self.dinleyici = None
         self._tik = 0
 
-        ilk_acilis = not os.path.exists(CONFIG_PATH)
         self.root = tk.Tk()
         self.root.withdraw()
         self.root.title(APP_NAME)
@@ -1180,8 +1197,9 @@ class MetinKap:
 
     # -- arayuzun kullandigi yardimcilar ----------------------------------
     def ayar_yaz(self):
-        ayar_kaydet(self.cfg)
+        ok = ayar_kaydet(self.cfg)
         self._menu_tazele()
+        return ok
 
     def panoya(self, metin):
         return panoya_yaz(metin)
@@ -1548,12 +1566,23 @@ class MetinKap:
         return True
 
     def gecmis_temizle(self):
+        """Diski de temizler. Temizlenemezse False doner — arayuz 'temizlendi'
+        demeden once buna bakmali, cunku kullanici sildigini saniyor."""
         self.gecmis = []
         self.son_metin = ""
-        self._gecmis_dosyalarini_sil()      # "temizle" diskte de temizlesin
+        ok = self._gecmis_dosyalarini_sil()
         self._menu_tazele()
+        return ok
 
     def _gecmis_dosyalarini_sil(self):
+        """Silinemeyen dosyanin uzerine bos liste yazmayi dener.
+
+        Baska bir surec (yedekleme, virus tarayici, dosyayi acik birakan bir
+        editor) dosyayi tutuyorsa os.remove WinError 32 veriyordu ve gecmis
+        diskte kaliyordu: surec duzgun kapanmazsa bir sonraki acilista butun
+        kayitlar geri geliyor. Kullanici acisindan bu, silinmedigi soylenmemis
+        bir veri; icerigi bosaltmak en azindan metni birakmiyor."""
+        tamam = True
         for yol in (HISTORY_JSON, HISTORY_TXT):
             try:
                 os.remove(yol)
@@ -1561,6 +1590,13 @@ class MetinKap:
                 pass
             except OSError as e:
                 _log(f"gecmis silinemedi ({yol}): {e}")
+                try:
+                    with open(yol, "w", encoding="utf-8") as f:
+                        f.write("[]" if yol == HISTORY_JSON else "")
+                except OSError as e2:
+                    _log(f"gecmis bosaltilamadi da ({yol}): {e2}")
+                    tamam = False
+        return tamam
 
     def _gecmis_yaz(self):
         if not self.cfg["gecmis_kaydet"]:
@@ -1575,8 +1611,13 @@ class MetinKap:
     def _gecmis_degisti(self):
         if self.pencere is not None:
             try:
-                if self.pencere.win.winfo_exists() and self.pencere.win.winfo_viewable():
-                    self.pencere.sekme_goster(self.pencere.aktif)
+                if self.pencere.win.winfo_exists():
+                    if self.pencere.win.winfo_viewable():
+                        self.pencere.sekme_goster(self.pencere.aktif)
+                    else:
+                        # Simge durumunda/gizliyken cizmeye gerek yok, ama geri
+                        # acildiginda tazelensin diye isaretliyoruz.
+                        self.pencere._bayat = True
             except Exception:
                 pass
         self._menu_tazele()
