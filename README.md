@@ -4,6 +4,7 @@ Grab text from anywhere on screen — documents you can't select, images, video 
 put it on the clipboard with one shortcut. Uses the OCR engine built into Windows
 (`Windows.Media.Ocr`): no install, no internet, and **~15 ms** for a line of text.
 
+[![build](https://github.com/tbatesend/metinkap/actions/workflows/derleme.yml/badge.svg)](https://github.com/tbatesend/metinkap/actions/workflows/derleme.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![platform: Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)
 ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab)
@@ -90,6 +91,12 @@ exe-olustur.bat
 Installs PyInstaller into the same virtualenv, produces `dist\MetinKap.exe`, and then runs
 `--selftest` against the result — if the build is broken it refuses to call it done. Takes
 about 20 seconds and produces a ~22 MB single file.
+
+The same build runs in GitHub Actions on every push
+([workflow](.github/workflows/derleme.yml)), with the same PyInstaller flags, and the exe it
+produces is run there too before it is kept — so you do not have to take anyone's word for
+what went into the binary. The runner has one OCR language (`en-US`), enough for the check
+to read text back from a generated image.
 
 If Smart App Control is on, the verification step cannot run at all. The script detects
 that and says the build went **untested**, rather than pretending it is broken — those are

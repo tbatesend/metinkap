@@ -4,6 +4,7 @@ Kopyalanamayan belgelerden, resimlerden, video karelerinden metni **tek kısayol
 panoya koyar. Windows'un kendi OCR motorunu (`Windows.Media.Ocr`) kullanır: kurulum yok,
 internet yok, bir satır metin için **~15 ms**.
 
+[![derleme](https://github.com/tbatesend/metinkap/actions/workflows/derleme.yml/badge.svg)](https://github.com/tbatesend/metinkap/actions/workflows/derleme.yml)
 [![lisans: MIT](https://img.shields.io/badge/lisans-MIT-blue.svg)](LICENSE)
 ![platform: Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)
 ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab)
@@ -92,6 +93,12 @@ exe-olustur.bat
 PyInstaller'ı aynı sanal ortama kurar, `dist\MetinKap.exe` üretir ve sonucu `--selftest`
 ile sınar — derleme bozuksa "tamam" demeyi reddeder. Yaklaşık 20 saniye sürüyor, ~22 MB
 tek dosya çıkıyor.
+
+Aynı derleme her push'ta GitHub Actions'ta da çalışıyor
+([iş akışı](.github/workflows/derleme.yml)), aynı PyInstaller bayraklarıyla; ürettiği exe
+orada da çalıştırılıp sınanmadan saklanmıyor — yani ikili dosyanın içinde ne olduğu
+konusunda kimsenin sözüne güvenmen gerekmiyor. Runner'da bir OCR dili (`en-US`) var, bu da
+üretilen bir görüntüden metin okuma kontrolüne yetiyor.
 
 Smart App Control açıksa doğrulama adımı hiç çalışamaz. Betik bunu fark edip derlemenin
 **sınanmadığını** söyler, "bozuk" demez — ikisi farklı şeyler ve karıştırmamakta fayda var.
