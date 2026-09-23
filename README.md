@@ -17,6 +17,26 @@ clipboard — typically in 15–50 ms.
 
 ## Install
 
+**Just want to use it?** Download `MetinKap.exe` from the
+[latest release](../../releases/latest) and run it. Nothing else is needed — no Python, no
+setup. A tray icon appears next to the clock and `Ctrl+Shift+Space` starts working.
+
+Windows will show a *"Windows protected your PC"* screen the first time, because the exe is
+not signed with a paid code-signing certificate. Click **More info → Run anyway**. If you
+would rather not trust a binary from a stranger, build it yourself — see below, it is one
+script.
+
+To check the download actually works on your machine:
+
+```
+MetinKap.exe --selftest
+```
+
+It verifies the OCR engine, reads text from a generated image, and tests the clipboard
+without opening any window.
+
+### Running from source
+
 ```
 kurulum.bat
 ```
@@ -24,10 +44,21 @@ kurulum.bat
 Creates the virtualenv under `%USERPROFILE%\venvs\metinkap` (outside OneDrive, so sync
 doesn't fight it). Then run `baslat.bat` — a tray icon appears next to the clock.
 
+### Building the exe yourself
+
+```
+exe-olustur.bat
+```
+
+Installs PyInstaller into the same virtualenv, produces `dist\MetinKap.exe`, and then runs
+`--selftest` against the result — if the build is broken it refuses to call it done. Takes
+about 20 seconds and produces a ~22 MB single file.
+
 | File | What it does |
 |---|---|
 | `baslat.bat` | Runs it silently |
 | `konsol-ile-baslat.bat` | Runs it with a console (for troubleshooting) |
+| `exe-olustur.bat` | Builds and verifies `dist\MetinKap.exe` |
 | `testleri-calistir.bat` | Runs the test suites |
 | `otomatik-baslat.bat` | Adds/removes it from Windows startup — Settings does the same |
 

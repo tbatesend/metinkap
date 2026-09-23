@@ -23,3 +23,8 @@ desktop.ini
 .DS_Store
 .vscode/
 .idea/
+
+# PyInstaller ciktilari
+build/
+dist/
+*.spec

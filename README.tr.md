@@ -17,6 +17,26 @@ Ekran donuyor, istediğin yeri sürüklüyorsun, metin panoda — genellikle
 
 ## Kurulum
 
+**Sadece kullanmak istiyorsan:** [son sürümden](../../releases/latest) `MetinKap.exe`
+dosyasını indir ve çalıştır. Başka hiçbir şey gerekmiyor — Python yok, kurulum yok. Saat
+yanında tepsi ikonu çıkar ve `Ctrl+Shift+Space` çalışmaya başlar.
+
+Windows ilk çalıştırmada *"Windows bilgisayarınızı korudu"* ekranını gösterir, çünkü exe
+ücretli bir kod imzalama sertifikasıyla imzalanmadı. **Ek bilgi → Yine de çalıştır** de.
+Tanımadığın birinin ürettiği bir çalıştırılabilir dosyaya güvenmek istemiyorsan kendin
+derle — aşağıda, tek betik.
+
+İndirdiğin dosyanın makinende gerçekten çalıştığını görmek için:
+
+```
+MetinKap.exe --selftest
+```
+
+OCR motorunu, üretilen bir görüntüden metin okumayı ve panoyu hiç pencere açmadan
+doğruluyor.
+
+### Kaynaktan çalıştırma
+
 ```
 kurulum.bat
 ```
@@ -24,11 +44,22 @@ kurulum.bat
 Sanal ortamı `%USERPROFILE%\venvs\metinkap` altında kurar (OneDrive dışında, senkron sorunu
 olmaz). Sonra `baslat.bat` ile çalıştır — saat yanında tepsi ikonu çıkar.
 
+### Exe'yi kendin derlemek
+
+```
+exe-olustur.bat
+```
+
+PyInstaller'ı aynı sanal ortama kurar, `dist\MetinKap.exe` üretir ve sonucu `--selftest`
+ile sınar — derleme bozuksa "tamam" demeyi reddeder. Yaklaşık 20 saniye sürüyor, ~22 MB
+tek dosya çıkıyor.
+
 | Dosya | Ne yapar |
 |---|---|
 | `baslat.bat` | Sessizce çalıştırır |
 | `konsol-ile-baslat.bat` | Konsol açık çalıştırır (sorun ararken) |
 | `testleri-calistir.bat` | Test takımlarını çalıştırır |
+| `exe-olustur.bat` | `dist\MetinKap.exe` üretir ve doğrular |
 | `otomatik-baslat.bat` | Windows açılışına ekler / çıkarır — Ayarlar'dan da yapılabilir |
 
 ## Kullanım
