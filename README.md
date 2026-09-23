@@ -28,12 +28,20 @@ is captured in one frame. `Ctrl+Shift+R` skips that part entirely.
 
 ## Install
 
-**Just want to use it?** Download `MetinKap.exe` from the
-[latest release](../../releases/latest) and run it. Nothing else is needed — no Python, no
-setup. A tray icon appears next to the clock and `Ctrl+Shift+Space` starts working.
+**Just want to use it?** Two scripts:
 
-The exe is not signed with a paid code-signing certificate, so Windows will push back. How
-hard depends on your machine:
+```
+kurulum.bat
+baslat.bat
+```
+
+The first one sets up a virtualenv and installs the dependencies, the second one starts it.
+A tray icon appears next to the clock and `Ctrl+Shift+Space` starts working. Details below.
+
+There is also a **single exe**, 22 MB, no Python needed — build it with `exe-olustur.bat`,
+or download it from a [release](../../releases/latest) when one is attached. It is not
+signed with a paid code-signing certificate, so Windows will push back, and how hard depends
+on your machine:
 
 - **SmartScreen** shows *"Windows protected your PC"*. Click **More info → Run anyway**.
 - **Smart App Control**, if it is on, refuses outright: *"blocked by your organization's
@@ -54,10 +62,7 @@ hard depends on your machine:
 
   To see which one you have: Windows Security → App & browser control → Smart App Control.
 
-If you would rather not trust a binary from a stranger, build it yourself — see below, it is
-one script.
-
-To check the download actually works on your machine:
+To check that an exe actually works on your machine:
 
 ```
 MetinKap.exe --selftest

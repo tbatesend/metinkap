@@ -28,12 +28,20 @@ tamamı tek karede yakalanıyor. `Ctrl+Shift+R` bu kısmı tümden atlıyor.
 
 ## Kurulum
 
-**Sadece kullanmak istiyorsan:** [son sürümden](../../releases/latest) `MetinKap.exe`
-dosyasını indir ve çalıştır. Başka hiçbir şey gerekmiyor — Python yok, kurulum yok. Saat
-yanında tepsi ikonu çıkar ve `Ctrl+Shift+Space` çalışmaya başlar.
+**Sadece kullanmak istiyorsan:** iki betik:
 
-Exe ücretli bir kod imzalama sertifikasıyla imzalanmadı, o yüzden Windows direnir. Ne
-kadar direneceği makinene bağlı:
+```
+kurulum.bat
+baslat.bat
+```
+
+İlki sanal ortamı kurup bağımlılıkları yükler, ikincisi çalıştırır. Saat yanında tepsi
+ikonu çıkar ve `Ctrl+Shift+Space` çalışmaya başlar. Ayrıntılar aşağıda.
+
+Bir de **tek dosya exe** var, 22 MB, Python gerektirmiyor — `exe-olustur.bat` ile derlersin
+ya da bir [sürüme](../../releases/latest) eklenmişse oradan indirirsin. Ücretli bir kod
+imzalama sertifikasıyla imzalanmadı, o yüzden Windows direnir; ne kadar direneceği makinene
+bağlı:
 
 - **SmartScreen** *"Windows bilgisayarınızı korudu"* ekranını gösterir. **Ek bilgi → Yine
   de çalıştır** de.
@@ -56,10 +64,7 @@ kadar direneceği makinene bağlı:
   Hangisinde olduğunu görmek için: Windows Güvenliği → Uygulama ve tarayıcı denetimi →
   Smart App Control.
 
-Tanımadığın birinin ürettiği bir çalıştırılabilir dosyaya güvenmek istemiyorsan kendin
-derle — aşağıda, tek betik.
-
-İndirdiğin dosyanın makinende gerçekten çalıştığını görmek için:
+Bir exe'nin makinende gerçekten çalıştığını görmek için:
 
 ```
 MetinKap.exe --selftest
