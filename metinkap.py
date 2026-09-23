@@ -391,8 +391,11 @@ def bantlari_birlestir(parcalar, ortusme=0.55, bosluk_kati=3.0):
     bolup birden fazla 'line' olarak dondurur. Ayni yatay bantta duran ve
     aralarindaki bosluk makul olan parcalari tek satira geri birlestirir.
     Bosluk esigi, iki sutunlu metinlerin yanlislikla birlesmesini onler."""
+    # Dikkat: bu fonksiyon (metin, kutu) ciftleri dondurur. Erken donus de ayni
+    # tipte olmali; bir ara sadece metin donuyordu ve cagiran taraf p[0] alinca
+    # metnin ILK HARFINI aliyordu — tek satirlik her yakalama tek harfe dusuyordu.
     if len(parcalar) < 2:
-        return [p[0] for p in parcalar]
+        return list(parcalar)
 
     gruplar = []
     for metin, r in sorted(parcalar, key=lambda p: (p[1][1], p[1][0])):
@@ -1084,23 +1087,31 @@ class DuzeltPenceresi:
 # --------------------------------------------------------------------------
 # Tepsi ikonu
 # --------------------------------------------------------------------------
-_ikon_onbellek = None
+_ikon_onbellek = {}
 
 
-def ikon_ciz():
-    global _ikon_onbellek
-    if _ikon_onbellek is None:
-        img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+def ikon_ciz(boyut=64):
+    """Secim koseleri + ortada bir T. Olculer 64 piksel tabanina gore yazilip
+    istenen boyuta olceklendi; .ico uretimi 256'ya kadar cikabilsin diye."""
+    if boyut not in _ikon_onbellek:
+        k = boyut / 64.0
+        img = Image.new("RGBA", (boyut, boyut), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
-        d.rounded_rectangle((3, 3, 60, 60), radius=13, fill=(37, 99, 235, 255))
+        o = lambda v: v * k
+        kalin = max(1, round(3 * k))
+        d.rounded_rectangle((o(3), o(3), o(60), o(60)), radius=round(13 * k),
+                            fill=(37, 99, 235, 255))
         for (x, y, dx, dy) in ((14, 14, 1, 1), (49, 14, -1, 1),
                                (14, 49, 1, -1), (49, 49, -1, -1)):
-            d.line((x, y, x + 9 * dx, y), fill=(255, 255, 255, 235), width=3)
-            d.line((x, y, x, y + 9 * dy), fill=(255, 255, 255, 235), width=3)
-        d.line((22, 27, 42, 27), fill="white", width=5)   # T
-        d.line((32, 27, 32, 46), fill="white", width=5)
-        _ikon_onbellek = img
-    return _ikon_onbellek
+            d.line((o(x), o(y), o(x + 9 * dx), o(y)),
+                   fill=(255, 255, 255, 235), width=kalin)
+            d.line((o(x), o(y), o(x), o(y + 9 * dy)),
+                   fill=(255, 255, 255, 235), width=kalin)
+        govde = max(1, round(5 * k))
+        d.line((o(22), o(27), o(42), o(27)), fill="white", width=govde)   # T
+        d.line((o(32), o(27), o(32), o(46)), fill="white", width=govde)
+        _ikon_onbellek[boyut] = img
+    return _ikon_onbellek[boyut]
 
 
 # --------------------------------------------------------------------------
@@ -1739,7 +1750,87 @@ def tek_ornek():
     return False
 
 
+def kendini_sina():
+    """--selftest: pencere acmadan temel yetenekleri dogrular.
+
+    Paketlenmis bir exe'nin gercekten calistigini anlamanin en hizli yolu:
+    OCR motoru yuklendi mi, dil var mi, bir goruntuden metin okuyabiliyor mu,
+    panoya yazabiliyor mu. CI de bunu kullanir."""
+    print(f"{APP_NAME} {__version__} — kendini sinama")
+    sorun = []
+
+    ocr = Ocr()
+    if not ocr.hazir:
+        sorun.append(f"OCR modulleri yuklenemedi: {ocr._import_error}")
+        print("  [X] OCR motoru")
+    else:
+        print("  [OK] OCR motoru yuklendi")
+        diller = ocr.diller()
+        if diller:
+            print(f"  [OK] {len(diller)} OCR dili: {', '.join(diller)}")
+        else:
+            sorun.append("Hic OCR dili kurulu degil")
+            print("  [X] OCR dili yok")
+
+        if diller:
+            # Sozluk destekli motor uydurma kelimelerde tokezliyor; sinama
+            # metni sade ve rakam agirlikli, dil de mumkunse Ingilizce.
+            dil = next((d for d in diller if d.lower().startswith("en")),
+                       diller[0])
+            BEKLENEN = "Test 12345 ABC"
+            try:
+                from PIL import ImageDraw, ImageFont
+                img = Image.new("RGB", (460, 80), "white")
+                d = ImageDraw.Draw(img)
+                try:
+                    f = ImageFont.truetype("C:/Windows/Fonts/segoeui.ttf", 32)
+                except OSError:
+                    f = ImageFont.load_default()
+                d.text((14, 18), BEKLENEN, font=f, fill="black")
+                buyuk = img.resize((img.width * 2, img.height * 2), Image.LANCZOS)
+                okunan = " ".join(ocr.satirlar(buyuk, dil)).strip()
+                if "12345" in okunan and "Test" in okunan:
+                    print(f"  [OK] OCR okudu ({dil}): {okunan!r}")
+                else:
+                    sorun.append(f"OCR beklenen metni okumadi: {okunan!r}")
+                    print(f"  [X] OCR ciktisi ({dil}): {okunan!r}")
+            except Exception as e:
+                sorun.append(f"OCR denemesi patladi: {e}")
+                print(f"  [X] OCR denemesi: {e}")
+
+    try:
+        if panoya_yaz(f"selftest-{time.time():.0f}"):
+            print("  [OK] panoya yazildi")
+        else:
+            sorun.append("Panoya yazilamadi")
+            print("  [X] panoya yazilamadi")
+    except Exception as e:
+        sorun.append(f"Pano: {e}")
+        print(f"  [X] pano: {e}")
+
+    try:
+        ekran = sanal_ekran()
+        print(f"  [OK] sanal ekran {ekran[2]}x{ekran[3]}")
+    except Exception as e:
+        sorun.append(f"Ekran olculemedi: {e}")
+        print(f"  [X] ekran: {e}")
+
+    print()
+    if sorun:
+        print("SONUC: SORUN VAR")
+        for s in sorun:
+            print("  -", s)
+        return 1
+    print("SONUC: her sey calisiyor")
+    return 0
+
+
 def main():
+    if "--selftest" in sys.argv:
+        sys.exit(kendini_sina())
+    if "--version" in sys.argv or "-V" in sys.argv:
+        print(f"{APP_NAME} {__version__}")
+        sys.exit(0)
     if not tek_ornek():
         ceviri.dili_ayarla(ayar_yukle()["arayuz_dil"])
         _u32.MessageBoxW(None, t("msg.running"), APP_NAME, 0x40)

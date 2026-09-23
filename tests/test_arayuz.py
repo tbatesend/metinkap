@@ -10,6 +10,8 @@ sys.path.insert(0, KOK)
 sys.stdout.reconfigure(encoding="utf-8")
 
 import ceviri
+import ortam
+ortam.izole_et()   # gercek %APPDATA% verisine dokunma
 import metinkap as mk
 import arayuz
 import diller as dl
@@ -47,7 +49,7 @@ for k in ceviri.EN:
 print("  OK   tum anahtarlarda format alanlari eslesiyor")
 
 print("[2] bozuk config kurtariliyor")
-yedek = open(mk.CONFIG_PATH, encoding="utf-8").read() if os.path.exists(mk.CONFIG_PATH) else None
+# ortam.izole_et() yollari gecici klasore aldi; elle yedeklemeye gerek yok.
 open(mk.CONFIG_PATH, "w", encoding="utf-8").write("{ bu gecerli json degil ")
 c = mk.ayar_yukle()
 chk("bozuk json varsayilana donuyor", c["kisayol"] == mk.VARSAYILAN["kisayol"])
@@ -204,8 +206,6 @@ else:
     chk("tepsi ikonu", False, "olusmadi")
 
 app.cikis()
-if yedek:
-    open(mk.CONFIG_PATH, "w", encoding="utf-8").write(yedek)
 try:
     os.remove(mk.HISTORY_JSON)
 except OSError:

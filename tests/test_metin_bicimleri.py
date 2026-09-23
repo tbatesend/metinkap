@@ -5,6 +5,8 @@ import sys
 KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, KOK)
 sys.stdout.reconfigure(encoding="utf-8")
+import ortam
+ortam.izole_et()   # gercek %APPDATA% verisine dokunma
 import metinkap as mk
 from PIL import Image, ImageDraw, ImageFont
 
@@ -126,6 +128,27 @@ chk("Ocr.satirlar hala string listesi",
     all(isinstance(x, str) for x in ocr.satirlar(im, "en-US")))
 chk("satirlari_birlestir calisiyor",
     mk.satirlari_birlestir(["a", "b"], "paragraf") == "a b")
+
+print("\n[8] TEK SATIR yakalama (regresyon: bir ara tek harfe dusuyordu)")
+# bantlari_birlestir erken donuste (metin, kutu) yerine sadece metin donuyordu;
+# cagiran p[0] alinca metnin ilk HARFINI aliyordu. Cok satirli testlerin hicbiri
+# bunu gormedi cunku onlarda parca sayisi >= 2.
+tekil = [("merhaba dunya", (0.0, 0.0, 100.0, 20.0))]
+r1 = mk.bantlari_birlestir(tekil)
+chk("tek parcali girdi (metin, kutu) olarak doner", r1 == tekil, r1)
+chk("iki parcali girdi de ayni tipte doner",
+    all(isinstance(x, tuple) and len(x) == 2
+        for x in mk.bantlari_birlestir(
+            [("a", (0.0, 0.0, 10.0, 10.0)), ("b", (0.0, 40.0, 10.0, 50.0))])))
+chk("bicimlendir tek parcada TAM metni verir",
+    mk.bicimlendir(tekil, "satir") == "merhaba dunya",
+    mk.bicimlendir(tekil, "satir"))
+
+im_tek = ciz([(20, "Toplam 1.249,90 TL")])
+im_tek = im_tek.resize((im_tek.width * 2, im_tek.height * 2), Image.LANCZOS)
+s_tek = ocr.satirlar(im_tek, "en-US")
+chk("gercek OCR'da tek satir tam geliyor", s_tek and len(s_tek[0]) > 5, s_tek)
+chk("icerik dogru", "1.249,90" in " ".join(s_tek), s_tek)
 
 print("\nSONUC:", "HEPSI GECTI" if ok else "HATA VAR")
 sys.exit(0 if ok else 1)

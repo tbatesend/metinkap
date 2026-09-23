@@ -9,6 +9,8 @@ import time
 KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, KOK)
 sys.stdout.reconfigure(encoding="utf-8")
+import ortam
+ortam.izole_et()   # gercek %APPDATA% verisine dokunma
 import metinkap as mk
 import diller as dl
 
@@ -20,11 +22,6 @@ def chk(ad, k, ek=""):
     print(("  OK   " if k else "  FAIL ") + ad + (("  -> " + str(ek)) if ek else ""))
     ok &= bool(k)
 
-
-yedek_cfg = (open(mk.CONFIG_PATH, encoding="utf-8").read()
-             if os.path.exists(mk.CONFIG_PATH) else None)
-yedek_gec = (open(mk.HISTORY_JSON, encoding="utf-8").read()
-             if os.path.exists(mk.HISTORY_JSON) else None)
 
 print("[A] Ayar yazimi: iki thread ayni anda (eskiden ayarlar sessizce kayboluyordu)")
 # ayar_kaydet istisnayi YUTUP logluyor; sadece firlatilan hataya bakmak
@@ -188,19 +185,8 @@ kalinti = [x for x in os.listdir(os.environ.get("TEMP", "."))
            if x.startswith("metinkap_")]
 chk("TEMP'te kurulum kalintisi yok", not kalinti, kalinti[:3])
 
-# geri yukle
-for yol, icerik in ((mk.CONFIG_PATH, yedek_cfg), (mk.HISTORY_JSON, yedek_gec)):
-    if icerik is not None:
-        open(yol, "w", encoding="utf-8").write(icerik)
-    else:
-        try:
-            os.remove(yol)
-        except OSError:
-            pass
-try:
-    os.remove(mk.HISTORY_TXT)
-except OSError:
-    pass
+# Elle geri yuklemeye gerek yok: ortam.izole_et() tum yollari gecici bir
+# klasore yonlendiriyor ve cikista siliyor.
 
 print("\nSONUC:", "HEPSI GECTI" if ok else "HATA VAR")
 sys.exit(0 if ok else 1)

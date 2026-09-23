@@ -2,6 +2,8 @@ import os
 import ctypes, sys, time, threading
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.stdout.reconfigure(encoding="utf-8")
+import ortam
+ortam.izole_et()   # gercek %APPDATA% verisine dokunma
 import metinkap as mk
 u32 = ctypes.windll.user32
 ok = True

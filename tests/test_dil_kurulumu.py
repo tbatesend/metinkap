@@ -7,6 +7,8 @@ KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, KOK)
 sys.stdout.reconfigure(encoding="utf-8")
 import ceviri
+import ortam
+ortam.izole_et()   # gercek %APPDATA% verisine dokunma
 import metinkap as mk
 import diller as dl
 
