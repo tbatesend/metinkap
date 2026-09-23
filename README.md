@@ -2,7 +2,7 @@
 
 Grab text from anywhere on screen — documents you can't select, images, video frames — and
 put it on the clipboard with one shortcut. Uses the OCR engine built into Windows
-(`Windows.Media.Ocr`): no install, no internet, **~15–50 ms** per capture.
+(`Windows.Media.Ocr`): no install, no internet, and **~15 ms** for a line of text.
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![platform: Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)
@@ -12,8 +12,19 @@ put it on the clipboard with one shortcut. Uses the OCR engine built into Window
 
 ![Selecting an area on screen](docs/secim.png)
 
-The screen freezes, you drag over what you want, and the text is on your
-clipboard — typically in 15–50 ms.
+The screen freezes, you drag over what you want, and the text is on your clipboard.
+
+How long that takes depends on how much you selected, so here is the whole range rather
+than the flattering end of it (measured on this machine, median of 25 runs):
+
+| Selection | Reading it |
+|---|---|
+| One line (400×40) | ~15 ms |
+| A paragraph (800×300) | ~85–115 ms |
+| A screenful (1600×900) | ~210–280 ms |
+
+Freezing the screen costs another ~70 ms on top, because the whole 2560×1600 virtual screen
+is captured in one frame. `Ctrl+Shift+R` skips that part entirely.
 
 ## Install
 
@@ -229,15 +240,21 @@ language.
 
 ## Performance notes
 
-Two measured choices in the capture path:
+Measured choices in the capture path:
 
-- The crop is encoded as **BMP, not PNG**, before it goes to the OCR engine — no compression
-  pass on an image that is thrown away immediately.
-- `Ctrl+Shift+R` grabs **only its region** through GDI `BitBlt` (~4 ms) instead of capturing
-  the whole 2560×1600 virtual screen and cropping (~55 ms). The results are pixel-identical;
+- The crop is encoded as **BMP, not PNG**, before it goes to the OCR engine. Measured against
+  a PNG version of the same path: PNG costs +6 ms on a small selection, +35 ms on a paragraph
+  and +41 ms on a screenful, and the recognised text is byte-for-byte identical. No reason to
+  compress an image that is thrown away immediately.
+- `Ctrl+Shift+R` grabs **only its region** through GDI `BitBlt` — ~3–4 ms for a line-sized
+  region, ~20 ms for a large one — instead of capturing the whole 2560×1600 virtual screen
+  and cropping, which takes ~60–80 ms whatever the region. The results are pixel-identical;
   there is a fallback to the PIL path if the GDI call fails.
 - Dimming the overlay uses a lookup-table `point()` pass rather than `Image.blend` — same
   output, a third of the time.
+- Every capture also writes the crop to `son_kirpim.png`, so you can look at what the engine
+  was actually given when a reading comes out wrong. That disk write happens **inside** the
+  timings above — they are the real cost, not a best case with the debugging aid removed.
 
 ## Files
 

@@ -2,7 +2,7 @@
 
 Kopyalanamayan belgelerden, resimlerden, video karelerinden metni **tek kısayolla** alıp
 panoya koyar. Windows'un kendi OCR motorunu (`Windows.Media.Ocr`) kullanır: kurulum yok,
-internet yok, yakalama başına **~15–50 ms**.
+internet yok, bir satır metin için **~15 ms**.
 
 [![lisans: MIT](https://img.shields.io/badge/lisans-MIT-blue.svg)](LICENSE)
 ![platform: Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4)
@@ -12,8 +12,19 @@ internet yok, yakalama başına **~15–50 ms**.
 
 ![Ekranda alan seçme](docs/secim.png)
 
-Ekran donuyor, istediğin yeri sürüklüyorsun, metin panoda — genellikle
-15–50 ms içinde.
+Ekran donuyor, istediğin yeri sürüklüyorsun, metin panoda.
+
+Ne kadar sürdüğü ne kadar seçtiğine bağlı; işine gelen ucu değil aralığın tamamını
+yazıyorum (bu makinede ölçüldü, 25 tekrarın medyanı):
+
+| Seçim | Okuma süresi |
+|---|---|
+| Tek satır (400×40) | ~15 ms |
+| Bir paragraf (800×300) | ~85–115 ms |
+| Ekran dolusu (1600×900) | ~210–280 ms |
+
+Ekranın donması bunun üstüne ~70 ms daha ekliyor, çünkü 2560×1600'lük sanal ekranın
+tamamı tek karede yakalanıyor. `Ctrl+Shift+R` bu kısmı tümden atlıyor.
 
 ## Kurulum
 
@@ -227,15 +238,20 @@ Metin çıkmazsa: daha geniş bir alan seç (tek kelime yerine satırın tamamı
 
 ## Performans notları
 
-Yakalama yolunda ölçüme dayanan üç tercih:
+Yakalama yolunda ölçüme dayanan tercihler:
 
-- Kırpım OCR motoruna **PNG değil BMP** olarak veriliyor — hemen atılacak bir görüntü için
-  sıkıştırma yapmanın anlamı yok.
-- `Ctrl+Shift+R` **yalnızca kendi bölgesini** GDI `BitBlt` ile alıyor (~4 ms); tüm 2560×1600
-  sanal ekranı yakalayıp kırpmak ~55 ms sürüyordu. Sonuç piksel piksel aynı; GDI çağrısı
-  başarısız olursa PIL yoluna düşüyor.
+- Kırpım OCR motoruna **PNG değil BMP** olarak veriliyor. Aynı yolun PNG'li ikiziyle
+  ölçüldü: PNG küçük seçimde +6 ms, paragrafta +35 ms, ekran dolusunda +41 ms getiriyor ve
+  tanınan metin birebir aynı. Hemen atılacak bir görüntüyü sıkıştırmanın karşılığı yok.
+- `Ctrl+Shift+R` **yalnızca kendi bölgesini** GDI `BitBlt` ile alıyor — satır boyu bölgede
+  ~3–4 ms, büyük bölgede ~20 ms. Tüm 2560×1600 sanal ekranı yakalayıp kırpmak ise bölge ne
+  olursa olsun ~60–80 ms. Sonuç piksel piksel aynı; GDI çağrısı başarısız olursa PIL yoluna
+  düşüyor.
 - Seçim ekranının karartması `Image.blend` yerine LUT tabanlı `point()` geçişi — aynı sonuç,
   üçte bir süre.
+- Her yakalama kırpımı `son_kirpim.png` olarak da diske yazıyor; okuma tuhaf çıktığında
+  motora gerçekte ne verildiğine bakabilesin diye. Bu yazma yukarıdaki sürelerin **içinde** —
+  yani o sayılar gerçek maliyet, hata ayıklama yardımcısı çıkarılmış hali değil.
 
 ## Dosyalar
 

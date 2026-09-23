@@ -352,7 +352,13 @@ class Ocr:
         Kutular tablo ve girinti modlari icin gerekli; sutun yapisi yalnizca
         x koordinatlarindan cikarilabiliyor."""
         buf = io.BytesIO()
-        img.convert("RGB").save(buf, "BMP")   # BMP: PNG'den cok daha hizli kodlanir
+        # convert() zaten RGB olan goruntuyu de kopyaliyor: 1600x900'de olculen
+        # bedel 2.1 ms, kucuk secimde 0.00. Kirpim bu yola hep RGB geliyor,
+        # yani normalde bu satir bos yere calisiyordu.
+        (img if img.mode == "RGB" else img.convert("RGB")).save(buf, "BMP")
+        # BMP, PNG degil: olculdu, PNG orta boyda +35 ms, buyukte +41 ms
+        # getiriyor ve taninan metin birebir ayni. Hemen atilacak bir goruntuye
+        # sikistirma yapmanin karsiligi yok.
         ham = asyncio.run(self._tani(buf.getvalue(), tag))
         return bantlari_birlestir(ham) if bant_birlestir else ham
 
@@ -736,9 +742,13 @@ SRCCOPY = 0x00CC0020
 def bolge_yakala(kutu):
     """Sanal ekran goruntu koordinatlarindaki tek bir dikdortgeni yakalar.
 
-    Tum ekrani alip kirpmak 2560x1600'de ~55 ms; tek bolgeyi BitBlt ile almak
-    ~4 ms ve sonuc piksel piksel ayni. 'Son alani tekrar yakala' her seferinde
-    bunu cagirdigi icin fark hissediliyor."""
+    Tum ekrani alip kirpmak 2560x1600'de ~60-80 ms (iki bagimsiz turun medyani
+    62 ve 74; once buraya ~55 yazilmisti, o minimuma yakin bir degerdi).
+    Tek bolgeyi BitBlt ile almak satir boyunda ~3-4 ms, 1600x900'de ~20 ms.
+    Sonuc piksel piksel ayni: statik bir bolgede 10/10 esitlendi. (Degisen bir
+    bolgede karsilastirma anlamsiz — arka arkaya iki BitBlt de tutmuyor.)
+    'Son alani tekrar yakala' her seferinde bunu cagirdigi icin fark
+    hissediliyor."""
     gdi = ctypes.windll.gdi32
     u32 = ctypes.windll.user32
     vx, vy, _, _ = sanal_ekran()
