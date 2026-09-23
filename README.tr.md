@@ -28,28 +28,28 @@ tamamı tek karede yakalanıyor. `Ctrl+Shift+R` bu kısmı tümden atlıyor.
 
 ## Kurulum
 
-**Sadece kullanmak istiyorsan:** iki betik:
+**Sadece kullanmak istiyorsan:** [son sürümden](../../releases/latest) `MetinKap.exe`
+dosyasını indir ve çalıştır — 22 MB, tek dosya, Python yok. Saat yanında tepsi ikonu çıkar
+ve `Ctrl+Shift+Space` çalışmaya başlar.
 
-```
-kurulum.bat
-baslat.bat
-```
+Engellenirse ya da tanımadığın birinin ürettiği bir çalıştırılabilir dosyayı çalıştırmak
+istemezsen kaynak yolu iki betik — `kurulum.bat` sonra `baslat.bat` — aşağıda anlatılıyor.
 
-İlki sanal ortamı kurup bağımlılıkları yükler, ikincisi çalıştırır. Saat yanında tepsi
-ikonu çıkar ve `Ctrl+Shift+Space` çalışmaya başlar. Ayrıntılar aşağıda.
-
-Bir de **tek dosya exe** var, 22 MB, Python gerektirmiyor — `exe-olustur.bat` ile derlersin
-ya da bir [sürüme](../../releases/latest) eklenmişse oradan indirirsin. Ücretli bir kod
-imzalama sertifikasıyla imzalanmadı, o yüzden Windows direnir; ne kadar direneceği makinene
-bağlı:
+Exe ücretli bir kod imzalama sertifikasıyla imzalanmadı, o yüzden Windows direnir. Ne kadar
+direneceği makinene bağlı:
 
 - **SmartScreen** *"Windows bilgisayarınızı korudu"* ekranını gösterir. **Ek bilgi → Yine
   de çalıştır** de.
-- **Smart App Control** açıksa düpedüz reddeder: *"kuruluşunuzun Device Guard ilkesi
-  tarafından engellendi"*, "yine de çalıştır" seçeneği yok. Exe'nin içinde bunu aşacak bir
-  şey yok ve uygulama başına istisna da yok — imzasız her programı, dosya nereden gelirse
-  gelsin engelliyor. İndirmeyi "güvenilir" işaretlemek de kurtarmıyor: hiç indirilmemiş,
-  yerelde derlenmiş bir kopyayı da engelledi.
+- **Smart App Control** açıksa düpedüz reddedebilir: *"kuruluşunuzun Device Guard ilkesi
+  tarafından engellendi"*, "yine de çalıştır" seçeneği yok, uygulama başına istisna da yok.
+  İndirmeyi "güvenilir" işaretlemek kurtarmıyor: hiç indirilmemiş, yerelde derlenmiş bir
+  kopyayı da engelledi.
+
+  Engelleyip engellemeyeceği **kestirilemiyor.** İmzasız bir dosya hakkındaki kararı bulut
+  itibar servisinden geliyor ve değişebiliyor: geliştirildiği makinede, Smart App Control
+  baştan sona açık ve zorlama modundayken, bu exe'nin bir derlemesini engelledi, bir
+  sonrakini çalıştırdı — aynı makine, aynı ayar, hâlâ imzasız. Yani iki sonuca da
+  güvenilmez.
 
   **Bu durumda kaynaktan çalıştır** (aşağıda). Bu, geliştirildiği makinede Smart App
   Control açık ve zorlama modundayken çalışıyor — Python yorumlayıcısı imzalı. Dürüst bir

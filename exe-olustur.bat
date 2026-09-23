@@ -52,13 +52,15 @@ exit /b 1
 
 :sac
 echo.
-echo [BLOCKED] Smart App Control is ON, so Windows refuses to run any unsigned
-echo exe on this machine - including this one. The build itself was NOT tested.
+echo [BLOCKED] Smart App Control is ON and refused to run this exe, so the build
+echo itself was NOT tested. Untested is not the same as broken.
 echo.
-echo   - To use MetinKap here, run it from source: baslat.bat
-echo   - To test the exe, use a machine with Smart App Control off
+echo Its verdict on an unsigned file comes from a cloud reputation service and is
+echo not stable - the same machine has blocked one build and run the next. So:
 echo.
-echo Turning Smart App Control off is one-way: Windows cannot switch it back on
-echo without a reinstall. Do not do it just for this.
+echo   - Try building again; the next one may be allowed through
+echo   - To use MetinKap here meanwhile, run it from source: baslat.bat
+echo.
+echo Do not turn Smart App Control off for this.
 if "%~1"=="" pause
 exit /b 2

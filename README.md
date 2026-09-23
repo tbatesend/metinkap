@@ -28,27 +28,27 @@ is captured in one frame. `Ctrl+Shift+R` skips that part entirely.
 
 ## Install
 
-**Just want to use it?** Two scripts:
+**Just want to use it?** Download `MetinKap.exe` from the
+[latest release](../../releases/latest) and run it — 22 MB, one file, no Python. A tray icon
+appears next to the clock and `Ctrl+Shift+Space` starts working.
 
-```
-kurulum.bat
-baslat.bat
-```
+If that gets blocked, or you would rather not run a stranger's binary, the source route is
+two scripts — `kurulum.bat` then `baslat.bat` — and is described below.
 
-The first one sets up a virtualenv and installs the dependencies, the second one starts it.
-A tray icon appears next to the clock and `Ctrl+Shift+Space` starts working. Details below.
-
-There is also a **single exe**, 22 MB, no Python needed — build it with `exe-olustur.bat`,
-or download it from a [release](../../releases/latest) when one is attached. It is not
-signed with a paid code-signing certificate, so Windows will push back, and how hard depends
-on your machine:
+The exe is not signed with a paid code-signing certificate, so Windows will push back. How
+hard depends on your machine:
 
 - **SmartScreen** shows *"Windows protected your PC"*. Click **More info → Run anyway**.
-- **Smart App Control**, if it is on, refuses outright: *"blocked by your organization's
-  Device Guard policy"*, with no "run anyway". Nothing in the exe can get around that, and
-  there is no per-app exception — it blocks every unsigned program, no matter where the file
-  came from. Marking the download as trusted does not help either; it blocked a locally
-  built copy that had never been downloaded at all.
+- **Smart App Control**, if it is on, may refuse outright: *"blocked by your organization's
+  Device Guard policy"*, with no "run anyway" and no per-app exception. Marking the download
+  as trusted does not help; it blocked a locally built copy that had never been downloaded
+  at all.
+
+  Whether it blocks is **not predictable**. Its verdict on an unsigned file comes from a
+  cloud reputation service and can change: on the machine this was developed on, with Smart
+  App Control on and enforcing the whole time, it blocked one build of this exe outright and
+  then ran the next one — same machine, same settings, still unsigned. So neither outcome is
+  something to count on.
 
   **Run it from source instead** (below). That works on the machine this was developed on,
   with Smart App Control on and enforcing — the Python interpreter is signed. One honest
