@@ -37,10 +37,20 @@ hard depends on your machine:
 
 - **SmartScreen** shows *"Windows protected your PC"*. Click **More info → Run anyway**.
 - **Smart App Control**, if it is on, refuses outright: *"blocked by your organization's
-  Device Guard policy"*, with no "run anyway". Nothing in the exe can get around that — it
-  blocks every unsigned program. Run it from source instead (below); that path is not
-  affected. Do **not** turn Smart App Control off for this: Windows cannot switch it back
-  on afterwards without a reinstall.
+  Device Guard policy"*, with no "run anyway". Nothing in the exe can get around that, and
+  there is no per-app exception — it blocks every unsigned program, no matter where the file
+  came from. Marking the download as trusted does not help either; it blocked a locally
+  built copy that had never been downloaded at all.
+
+  **Run it from source instead** (below). That works on the machine this was developed on,
+  with Smart App Control on and enforcing — the Python interpreter is signed. One honest
+  caveat: Smart App Control checks compiled extension modules too, and it did block one of
+  Pillow's on this machine while that file was still new to Microsoft's reputation service.
+  So the source path is reliable in practice rather than guaranteed.
+
+  Do **not** turn Smart App Control off for this. On the builds where it has been one-way,
+  Windows could not switch it back on without reinstalling; Microsoft has said newer builds
+  can, which is not something worth finding out the hard way for a text-grabbing tool.
 
   To see which one you have: Windows Security → App & browser control → Smart App Control.
 

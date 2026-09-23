@@ -39,9 +39,19 @@ kadar direneceği makinene bağlı:
   de çalıştır** de.
 - **Smart App Control** açıksa düpedüz reddeder: *"kuruluşunuzun Device Guard ilkesi
   tarafından engellendi"*, "yine de çalıştır" seçeneği yok. Exe'nin içinde bunu aşacak bir
-  şey yok — imzasız her programı engelliyor. Bu durumda kaynaktan çalıştır (aşağıda); o yol
-  etkilenmiyor. Bunun için Smart App Control'ü **kapatma**: Windows onu yeniden kurulum
-  olmadan geri açamıyor.
+  şey yok ve uygulama başına istisna da yok — imzasız her programı, dosya nereden gelirse
+  gelsin engelliyor. İndirmeyi "güvenilir" işaretlemek de kurtarmıyor: hiç indirilmemiş,
+  yerelde derlenmiş bir kopyayı da engelledi.
+
+  **Bu durumda kaynaktan çalıştır** (aşağıda). Bu, geliştirildiği makinede Smart App
+  Control açık ve zorlama modundayken çalışıyor — Python yorumlayıcısı imzalı. Dürüst bir
+  çekince: Smart App Control derlenmiş uzantı modüllerini de denetliyor ve bu makinede
+  Pillow'un bir tanesini, dosya Microsoft'un itibar servisinde henüz yeniyken engellemişti.
+  Yani kaynak yolu garantili değil, pratikte güvenilir.
+
+  Bunun için Smart App Control'ü **kapatma**. Tek yönlü olduğu sürümlerde Windows onu
+  yeniden kurulum olmadan geri açamıyordu; Microsoft yeni sürümlerde açılabildiğini
+  söylüyor — bir metin yakalama aracı için sınanacak şey değil.
 
   Hangisinde olduğunu görmek için: Windows Güvenliği → Uygulama ve tarayıcı denetimi →
   Smart App Control.
