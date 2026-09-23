@@ -240,9 +240,47 @@ _k32.GlobalFree.restype = ctypes.c_void_p
 _k32.GlobalFree.argtypes = [ctypes.c_void_p]
 _u32.SetClipboardData.restype = ctypes.c_void_p
 _u32.SetClipboardData.argtypes = [ctypes.c_uint, ctypes.c_void_p]
+# 64-bit'te varsayilan restype c_int: handle'in ust yarisi kesiliyor ve
+# GlobalLock cope bakip NULL donuyor.
+_u32.GetClipboardData.restype = ctypes.c_void_p
+_u32.GetClipboardData.argtypes = [ctypes.c_uint]
 
 CF_UNICODETEXT = 13
 GMEM_MOVEABLE = 0x0002
+
+
+def panodan_metin_oku():
+    """Panodaki metni doner; metin yoksa veya okunamazsa "".
+
+    Yalnizca --selftest icin var: sinama panoya yaziyor ve kullanicinin orada
+    ne varsa siliyordu. Once bunu okuyup sonra geri koyuyoruz. Resim/dosya gibi
+    metin disi icerik bu yolla geri konulamaz, cagiran taraf bunu soyluyor."""
+    if not _u32.OpenClipboard(None):
+        return ""
+    try:
+        h = _u32.GetClipboardData(CF_UNICODETEXT)
+        if not h:
+            return ""
+        p = _k32.GlobalLock(ctypes.c_void_p(h))
+        if not p:
+            return ""
+        try:
+            return ctypes.c_wchar_p(p).value or ""
+        finally:
+            _k32.GlobalUnlock(ctypes.c_void_p(h))
+    except Exception:
+        return ""
+    finally:
+        _u32.CloseClipboard()
+
+
+def panoyu_bosalt():
+    if not _u32.OpenClipboard(None):
+        return False
+    try:
+        return bool(_u32.EmptyClipboard())
+    finally:
+        _u32.CloseClipboard()
 
 
 def panoya_yaz(text):
@@ -1849,12 +1887,23 @@ def kendini_sina():
                 sorun.append(f"OCR denemesi patladi: {e}")
                 print(f"  [X] OCR denemesi: {e}")
 
+    # Pano kullanicinin calisan hafizasi. Sinama onu ezip birakiyordu: panoda
+    # ne varsa (sifre, link, yarim kalmis bir metin) gidiyordu. Once okuyup
+    # sonra geri koyuyoruz. Metin disi bir icerik (resim, dosya) geri
+    # konulamiyor; o durumu sessiz gecmek yerine yaziyoruz.
     try:
+        onceki = panodan_metin_oku()
         if panoya_yaz(f"selftest-{time.time():.0f}"):
             print("  [OK] panoya yazildi")
         else:
             sorun.append("Panoya yazilamadi")
             print("  [X] panoya yazilamadi")
+        if onceki:
+            panoya_yaz(onceki)
+            print("  [OK] panonun eski icerigi geri konuldu")
+        else:
+            panoyu_bosalt()
+            print("  [!]  panoda metin yoktu; metin disi icerik geri konulamaz")
     except Exception as e:
         sorun.append(f"Pano: {e}")
         print(f"  [X] pano: {e}")
