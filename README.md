@@ -301,11 +301,16 @@ virtualenv — the `.bat` above takes care of that. By hand it would be:
 "%USERPROFILE%\venvs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
-Six suites, 100+ checks: settings and history storage (including concurrent
-writes), text layout modes, stacking, paste-back safety, the settings window in
-both languages, and the language-install flow. Two of them open real windows and
-capture the screen, so don't use the machine while they run — `--hizli` skips
-those.
+Seven suites, 120+ checks: settings and history storage (including concurrent
+writes), translation coverage and recovery from corrupt config, text layout
+modes, stacking, paste-back safety, the settings window in both languages, and
+the language-install flow. Two of them open real windows and capture the screen,
+so don't use the machine while they run — `--hizli` skips those.
+
+Each check exists because something actually went wrong, and says so in a comment
+next to it. The translation suite, for instance, scans the source for every
+`t("...")` key rather than comparing the two language tables to each other — a key
+missing from *both* is invisible to that comparison, and one was.
 
 One thing is **not** verified and is marked as such in the suite: the
 "clipboard busy" path in `panoya_yaz`. On this machine `OpenClipboard` succeeds

@@ -298,10 +298,16 @@ gerekiyor — yukarıdaki `.bat` bunu hallediyor. Elle yazacak olsan:
 "%USERPROFILE%\venvs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
-Altı takım, 100+ kontrol: ayar ve geçmiş saklama (eşzamanlı yazım dahil), metin
-biçimi modları, biriktirme, geri yapıştırmanın güvenlik kontrolleri, ayar
-penceresinin iki dilde çizilmesi ve dil kurulum akışı. İkisi gerçek pencere açıp
-ekran yakaladığı için çalışırken bilgisayarı kullanma — `--hizli` onları atlar.
+Yedi takım, 120+ kontrol: ayar ve geçmiş saklama (eşzamanlı yazım dahil), çeviri
+kapsamı ve bozuk config'ten kurtarma, metin biçimi modları, biriktirme, geri
+yapıştırmanın güvenlik kontrolleri, ayar penceresinin iki dilde çizilmesi ve dil
+kurulum akışı. İkisi gerçek pencere açıp ekran yakaladığı için çalışırken
+bilgisayarı kullanma — `--hizli` onları atlar.
+
+Her kontrol gerçekten yaşanmış bir hatadan doğdu ve yanındaki yorumda bunu
+yazıyor. Örneğin çeviri takımı iki dil tablosunu birbiriyle karşılaştırmıyor,
+kaynaktaki her `t("...")` anahtarını tarıyor — **ikisinde birden** olmayan bir
+anahtar o karşılaştırmada görünmüyor, ve öyle bir anahtar vardı.
 
 Bir şey **doğrulanmadı** ve takımda öyle işaretli: `panoya_yaz` içindeki "pano
 meşgul" yolu. Bu makinede başka bir süreç panoyu tutarken bile `OpenClipboard`
