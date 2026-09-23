@@ -1,0 +1,71 @@
+name: build
+
+# Tek amaci: exe'nin nasil uretildigi herkesin gorebilecegi, tekrarlanabilir
+# bir yerde dursun. Bu ayni zamanda ucretsiz kod imzalama programlarinin
+# (SignPath Foundation gibi) sart kostugu sey: ikili dosya birinin
+# masaustunden degil, dogrulanabilir bir build'den cikmali.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Report what the runner can do
+        # Bilgi amacli, isi dusurmez: Windows Server uzerinde hic OCR dili
+        # kurulu olmayabiliyor. Asagidaki adimlar buna gore davraniyor.
+        shell: pwsh
+        run: |
+          python -c "import sys; print('python', sys.version)"
+          python -c "from winrt.windows.media.ocr import OcrEngine; ls=[l.language_tag for l in OcrEngine.available_recognizer_languages]; print('OCR languages on this runner:', ', '.join(ls) if ls else 'NONE')"
+
+      - name: Run the tests that need no window
+        run: python tests/calistir.py --hizli
+
+      - name: Build the exe
+        run: |
+          pyinstaller --noconfirm --clean `
+            --name MetinKap --onefile --windowed `
+            --icon docs/metinkap.ico `
+            --distpath dist --workpath build --specpath build `
+            --collect-submodules winrt --collect-binaries winrt `
+            --hidden-import winrt.windows.foundation.collections `
+            metinkap.py
+
+      - name: Verify the exe runs
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\MetinKap.exe -ArgumentList '--selftest' `
+                             -Wait -PassThru -NoNewWindow
+          Write-Host "--selftest exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { exit 1 }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MetinKap-exe
+          path: dist/MetinKap.exe
+          retention-days: 30
