@@ -47,10 +47,13 @@ jobs:
         run: python tests/calistir.py --hizli
 
       - name: Build the exe
+        # --icon, --specpath'e gore cozuluyor: "docs/metinkap.ico" burada
+        # build/docs/metinkap.ico olup bulunamiyordu. exe-olustur.bat'ta sorun
+        # cikmamasinin sebebi orada yolun zaten mutlak olmasi (%~dp0).
         run: |
           pyinstaller --noconfirm --clean `
             --name MetinKap --onefile --windowed `
-            --icon docs/metinkap.ico `
+            --icon "$env:GITHUB_WORKSPACE\docs\metinkap.ico" `
             --distpath dist --workpath build --specpath build `
             --collect-submodules winrt --collect-binaries winrt `
             --hidden-import winrt.windows.foundation.collections `
