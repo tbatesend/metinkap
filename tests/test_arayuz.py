@@ -86,7 +86,14 @@ app = mk.MetinKap()
 app.root.update()
 time.sleep(0.4)
 app.root.update()
-chk("4 kisayol da kayitli", app.dinleyici.hatalar == [], app.dinleyici.hatalar)
+if ortam.baska_ornek_calisiyor():
+    # Kisayollar isletim sistemi genelinde tekil; acik olan kopya onlari tutuyor.
+    # Bunu FAIL saymak yanlis yonlendiriyordu (bir kez tam bu yuzden "hata var"
+    # dedi, oysa kodda sorun yoktu). Kapatip tekrar calistirmak gerekir.
+    print("  NOT   MetinKap acik -> kisayol kaydi DOGRULANMADI "
+          "(kapatip tekrar calistirin)")
+else:
+    chk("4 kisayol da kayitli", app.dinleyici.hatalar == [], app.dinleyici.hatalar)
 for combo in (app.cfg["kisayol"], app.cfg["kisayol_duzelt"],
               app.cfg["kisayol_tekrar"], app.cfg["kisayol_biriktir"]):
     m, v = mk.kisayol_coz(combo)

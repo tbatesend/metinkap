@@ -33,3 +33,23 @@ def izole_et():
     mk.SHOW_FLAG = os.path.join(klasor, ".goster")
     atexit.register(shutil.rmtree, klasor, ignore_errors=True)
     return klasor
+
+
+def baska_ornek_calisiyor():
+    """Bu makinede zaten bir MetinKap acik mi?
+
+    Global kisayollar surecler arasinda paylasilamaz: uygulama aciksa
+    RegisterHotKey ikinci kopyada basarisiz olur. Bunu "test patladi" diye
+    raporlamak yaniltici — kodda bir sey yok, ortam dolu. Mutex'i sadece
+    ACIYORUZ (tek_ornek gibi olusturmuyoruz), yoksa calisan kopyaya
+    "arayuzu ac" sinyali gitmis olurdu.
+    """
+    import ctypes
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.OpenMutexW.restype = ctypes.c_void_p
+    k32.OpenMutexW.argtypes = [ctypes.c_ulong, ctypes.c_bool, ctypes.c_wchar_p]
+    h = k32.OpenMutexW(0x00100000, False, "Local\MetinKap_mutex")  # SYNCHRONIZE
+    if not h:
+        return False
+    k32.CloseHandle(ctypes.c_void_p(h))
+    return True

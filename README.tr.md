@@ -21,8 +21,20 @@ Ekran donuyor, istediğin yeri sürüklüyorsun, metin panoda — genellikle
 dosyasını indir ve çalıştır. Başka hiçbir şey gerekmiyor — Python yok, kurulum yok. Saat
 yanında tepsi ikonu çıkar ve `Ctrl+Shift+Space` çalışmaya başlar.
 
-Windows ilk çalıştırmada *"Windows bilgisayarınızı korudu"* ekranını gösterir, çünkü exe
-ücretli bir kod imzalama sertifikasıyla imzalanmadı. **Ek bilgi → Yine de çalıştır** de.
+Exe ücretli bir kod imzalama sertifikasıyla imzalanmadı, o yüzden Windows direnir. Ne
+kadar direneceği makinene bağlı:
+
+- **SmartScreen** *"Windows bilgisayarınızı korudu"* ekranını gösterir. **Ek bilgi → Yine
+  de çalıştır** de.
+- **Smart App Control** açıksa düpedüz reddeder: *"kuruluşunuzun Device Guard ilkesi
+  tarafından engellendi"*, "yine de çalıştır" seçeneği yok. Exe'nin içinde bunu aşacak bir
+  şey yok — imzasız her programı engelliyor. Bu durumda kaynaktan çalıştır (aşağıda); o yol
+  etkilenmiyor. Bunun için Smart App Control'ü **kapatma**: Windows onu yeniden kurulum
+  olmadan geri açamıyor.
+
+  Hangisinde olduğunu görmek için: Windows Güvenliği → Uygulama ve tarayıcı denetimi →
+  Smart App Control.
+
 Tanımadığın birinin ürettiği bir çalıştırılabilir dosyaya güvenmek istemiyorsan kendin
 derle — aşağıda, tek betik.
 
@@ -33,7 +45,8 @@ MetinKap.exe --selftest
 ```
 
 OCR motorunu, üretilen bir görüntüden metin okumayı ve panoyu hiç pencere açmadan
-doğruluyor.
+doğruluyor. Çalıştırdığın konsola bağlanıp sonucu yazar; ayrıca her şey yolundaysa `0`,
+değilse `1` koduyla çıkar.
 
 ### Kaynaktan çalıştırma
 
@@ -53,6 +66,9 @@ exe-olustur.bat
 PyInstaller'ı aynı sanal ortama kurar, `dist\MetinKap.exe` üretir ve sonucu `--selftest`
 ile sınar — derleme bozuksa "tamam" demeyi reddeder. Yaklaşık 20 saniye sürüyor, ~22 MB
 tek dosya çıkıyor.
+
+Smart App Control açıksa doğrulama adımı hiç çalışamaz. Betik bunu fark edip derlemenin
+**sınanmadığını** söyler, "bozuk" demez — ikisi farklı şeyler ve karıştırmamakta fayda var.
 
 | Dosya | Ne yapar |
 |---|---|
@@ -253,7 +269,7 @@ Testlerin paketlere ihtiyacı var, yani sanal ortamdaki yorumlayıcıyla çalı�
 gerekiyor — yukarıdaki `.bat` bunu hallediyor. Elle yazacak olsan:
 
 ```
-"%USERPROFILE%envs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
+"%USERPROFILE%\venvs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
 Altı takım, 100+ kontrol: ayar ve geçmiş saklama (eşzamanlı yazım dahil), metin

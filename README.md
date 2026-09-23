@@ -21,10 +21,20 @@ clipboard — typically in 15–50 ms.
 [latest release](../../releases/latest) and run it. Nothing else is needed — no Python, no
 setup. A tray icon appears next to the clock and `Ctrl+Shift+Space` starts working.
 
-Windows will show a *"Windows protected your PC"* screen the first time, because the exe is
-not signed with a paid code-signing certificate. Click **More info → Run anyway**. If you
-would rather not trust a binary from a stranger, build it yourself — see below, it is one
-script.
+The exe is not signed with a paid code-signing certificate, so Windows will push back. How
+hard depends on your machine:
+
+- **SmartScreen** shows *"Windows protected your PC"*. Click **More info → Run anyway**.
+- **Smart App Control**, if it is on, refuses outright: *"blocked by your organization's
+  Device Guard policy"*, with no "run anyway". Nothing in the exe can get around that — it
+  blocks every unsigned program. Run it from source instead (below); that path is not
+  affected. Do **not** turn Smart App Control off for this: Windows cannot switch it back
+  on afterwards without a reinstall.
+
+  To see which one you have: Windows Security → App & browser control → Smart App Control.
+
+If you would rather not trust a binary from a stranger, build it yourself — see below, it is
+one script.
 
 To check the download actually works on your machine:
 
@@ -33,7 +43,8 @@ MetinKap.exe --selftest
 ```
 
 It verifies the OCR engine, reads text from a generated image, and tests the clipboard
-without opening any window.
+without opening any window. It attaches to the console you ran it from, so you see the
+result; it also exits `0` when everything works and `1` when something does not.
 
 ### Running from source
 
@@ -53,6 +64,10 @@ exe-olustur.bat
 Installs PyInstaller into the same virtualenv, produces `dist\MetinKap.exe`, and then runs
 `--selftest` against the result — if the build is broken it refuses to call it done. Takes
 about 20 seconds and produces a ~22 MB single file.
+
+If Smart App Control is on, the verification step cannot run at all. The script detects
+that and says the build went **untested**, rather than pretending it is broken — those are
+different things and it is worth not confusing them.
 
 | File | What it does |
 |---|---|
@@ -256,7 +271,7 @@ The tests need the packages, so they have to run with the interpreter from the
 virtualenv — the `.bat` above takes care of that. By hand it would be:
 
 ```
-"%USERPROFILE%envs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
+"%USERPROFILE%\venvs\metinkap\Scripts\python.exe" tests\calistir.py --hizli
 ```
 
 Six suites, 100+ checks: settings and history storage (including concurrent

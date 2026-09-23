@@ -39,7 +39,26 @@ if "%~1"=="" pause
 exit /b 1
 
 :dogrulama
+rem Smart App Control imzasiz her exe'yi engeller — "Run anyway" bile yok.
+rem Bu durumda derleme saglam olabilir, sadece bu makinede calistirilamiyor.
+rem Ikisini ayirmazsak betik saglam bir derlemeye "shipleme" diyor.
+set "SAC="
+for /f "tokens=3" %%i in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState 2^>nul ^| find "VerifiedAndReputablePolicyState"') do set "SAC=%%i"
+if "%SAC%"=="0x1" goto :sac
 echo.
 echo [ERROR] The exe was built but --selftest failed. Do not ship it.
 if "%~1"=="" pause
 exit /b 1
+
+:sac
+echo.
+echo [BLOCKED] Smart App Control is ON, so Windows refuses to run any unsigned
+echo exe on this machine - including this one. The build itself was NOT tested.
+echo.
+echo   - To use MetinKap here, run it from source: baslat.bat
+echo   - To test the exe, use a machine with Smart App Control off
+echo.
+echo Turning Smart App Control off is one-way: Windows cannot switch it back on
+echo without a reinstall. Do not do it just for this.
+if "%~1"=="" pause
+exit /b 2

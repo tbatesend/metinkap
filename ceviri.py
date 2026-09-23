@@ -106,7 +106,7 @@ EN = {
     "set.mode_lines": "Keep lines",
     "set.mode_lines_d": "Leaves the text as it looks on screen.",
     "set.mode_smart": "Join wrapped lines",
-    "set.mode_smart_d": "Rejoins lines broken by wrapping and hyphen- splits, while "
+    "set.mode_smart_d": "Rejoins lines broken by wrapping and by hyphens, while "
                         "keeping separate sentences apart.",
     "set.mode_para": "Single paragraph",
     "set.mode_para_d": "Puts everything on one line.",

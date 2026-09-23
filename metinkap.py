@@ -1825,10 +1825,34 @@ def kendini_sina():
     return 0
 
 
+def konsola_baglan():
+    """Paketlenmis exe --windowed derlendigi icin stdout hicbir yere gitmiyor.
+
+    --selftest ve --version'in tum anlami ciktilarini okumak; cagiran komut
+    isteminin konsoluna baglanmazsak kullanici sadece cikis kodunu goruyor.
+    Konsol yoksa (cift tiklama) sessizce vazgeciyoruz.
+    """
+    if not getattr(sys, "frozen", False):
+        return
+    try:
+        if not ctypes.windll.kernel32.AttachConsole(-1):   # ATTACH_PARENT_PROCESS
+            return
+        for ad in ("stdout", "stderr"):
+            try:
+                setattr(sys, ad, open("CONOUT$", "w", encoding="utf-8",
+                                      errors="replace", buffering=1))
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+
 def main():
     if "--selftest" in sys.argv:
+        konsola_baglan()
         sys.exit(kendini_sina())
     if "--version" in sys.argv or "-V" in sys.argv:
+        konsola_baglan()
         print(f"{APP_NAME} {__version__}")
         sys.exit(0)
     if not tek_ornek():
