@@ -32,7 +32,6 @@ def t(anahtar, **kw):
 
 EN = {
     # --- genel ---
-    "app.tagline": "Grab text from anywhere on screen",
     "btn.change": "Change",
     "btn.copy": "Copy",
     "btn.close": "Close",
@@ -156,7 +155,6 @@ EN = {
     "hist.cleared": "History cleared.",
     "hist.clear_failed": "History was cleared here, but the file on disk could not be removed. See error.log.",
     "hist.clear_all": "Clear all",
-    "hist.unsaved": "Unsaved changes — press Save or they are lost when you switch.",
     "hist.edit_hint": "Editable · Ctrl+S saves, Ctrl+Enter copies",
 
     # --- hakkında sekmesi ---
@@ -231,7 +229,6 @@ EN = {
 }
 
 TR = {
-    "app.tagline": "Ekranın herhangi bir yerinden metin yakala",
     "btn.change": "Değiştir",
     "btn.copy": "Kopyala",
     "btn.close": "Kapat",
@@ -350,7 +347,6 @@ TR = {
     "hist.cleared": "Geçmiş temizlendi.",
     "hist.clear_failed": "Geçmiş burada temizlendi ama diskteki dosya silinemedi. hata.log dosyasına bak.",
     "hist.clear_all": "Hepsini temizle",
-    "hist.unsaved": "Kaydedilmemiş değişiklik var — Kaydet'e bas, yoksa geçince kaybolur.",
     "hist.edit_hint": "Düzenlenebilir · Ctrl+S kaydeder, Ctrl+Enter kopyalar",
 
     "about.title": "Hakkında",

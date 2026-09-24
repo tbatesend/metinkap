@@ -48,7 +48,7 @@ def baska_ornek_calisiyor():
     k32 = ctypes.WinDLL("kernel32", use_last_error=True)
     k32.OpenMutexW.restype = ctypes.c_void_p
     k32.OpenMutexW.argtypes = [ctypes.c_ulong, ctypes.c_bool, ctypes.c_wchar_p]
-    h = k32.OpenMutexW(0x00100000, False, "Local\MetinKap_mutex")  # SYNCHRONIZE
+    h = k32.OpenMutexW(0x00100000, False, r"Local\MetinKap_mutex")  # SYNCHRONIZE
     if not h:
         return False
     k32.CloseHandle(ctypes.c_void_p(h))

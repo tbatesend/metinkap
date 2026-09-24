@@ -7,7 +7,6 @@ yüzden kurulum UAC onayıyla ayrı bir işlemde çalıştırılır.
 
 import ctypes
 import ctypes.wintypes as wt
-import json
 import os
 import subprocess
 import tempfile
@@ -199,47 +198,6 @@ def dil_kur(etiket):
     if kod == UAC_REDDEDILDI:
         return False, "Administrator permission was not granted."
     return kod == 0, cikti or (f"Failed (exit {kod})." if kod else "Installed.")
-
-
-def dil_kaldir(etiket):
-    """OCR dil paketini kaldırır. (basarili, mesaj) döndürür."""
-    ad = capability_adi(etiket)
-    kod, cikti = yonetici_calistir(
-        f"  Remove-WindowsCapability -Online -Name '{ad}' | Out-Null\n"
-        f"  Yaz 'Removed.'\n"
-    )
-    if kod == UAC_REDDEDILDI:
-        return False, "Administrator permission was not granted."
-    return kod == 0, cikti or (f"Failed (exit {kod})." if kod else "Removed.")
-
-
-def sistemden_listele():
-    """Windows'un gerçek OCR capability listesini yönetici yetkisiyle okur.
-
-    Gömülü listeyi doğrulamak için. [(etiket, kurulu_mu)] döndürür."""
-    kls = tempfile.mkdtemp(prefix="metinkap_")
-    js = os.path.join(kls, "diller.json")
-    yonetici_calistir(
-        "  Get-WindowsCapability -Online -Name 'Language.OCR*' |\n"
-        "    ForEach-Object { [pscustomobject]@{ ad = $_.Name;\n"
-        "      durum = $_.State.ToString() } } |\n"
-        f"    ConvertTo-Json -Compress | Set-Content -LiteralPath '{js}' -Encoding UTF8\n"
-        "  Yaz 'ok'\n"
-    )
-    sonuc = []
-    try:
-        with open(js, encoding="utf-8-sig") as f:
-            veri = json.load(f)
-        if isinstance(veri, dict):
-            veri = [veri]
-        for s in veri:
-            parca = s.get("ad", "").split("~")
-            if len(parca) >= 4 and parca[3]:
-                sonuc.append((parca[3], s.get("durum") == "Installed"))
-    except Exception:
-        pass
-    _temizle(kls, js)
-    return sonuc
 
 
 # --------------------------------------------------------------------------

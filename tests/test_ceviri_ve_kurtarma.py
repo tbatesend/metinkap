@@ -123,5 +123,89 @@ print("[5] Bos metin panoya yazilmiyor ve bunu soyluyor")
 chk("bos metin False", mk.panoya_yaz("") is False)
 chk("bosluk da False", mk.panoya_yaz("") is False)
 
+print("[6] Tabloda olup hicbir yerde kullanilmayan anahtar")
+# Ters yon: [1] eksik anahtari ariyor, bu fazlasini. "app.tagline" ve
+# "hist.unsaved" boyle birikmisti; ikincisi ayrica YANLIS olmustu, cunku
+# kayit degisiminde duzenleme artik otomatik kaydediliyor — gosterilseydi
+# kullaniciya olmayan bir tehlikeyi haber verecekti.
+# Sezgisel: bazi anahtarlar degiskenle kuruluyor, o yuzden anahtarin kendisi
+# ya da noktadan sonraki parcasi kaynakta herhangi bir string olarak
+# geciyorsa kullaniliyor sayiliyor.
+kaynak = ""
+for dosya in ("metinkap.py", "arayuz.py", "diller.py"):
+    with open(os.path.join(KOK, dosya), encoding="utf-8") as f:
+        kaynak += f.read()
+yetim = []
+for anahtar in ceviri.EN:
+    if anahtar in kaynak:
+        continue
+    ek = anahtar.split(".", 1)[1]
+    if re.search(r"[\"']" + re.escape(ek) + r"[\"']", kaynak):
+        continue
+    yetim.append(anahtar)
+chk("kullanilmayan ceviri anahtari yok", not yetim, yetim)
+
+print("[7] Kaynakta SyntaxWarning yok")
+# tests/ortam.py icinde ters egik cizgili bir dize ham (r"...") yazilmamisti:
+# "Local\MetinKap_mutex". Python bugun \M'yi oldugu gibi birakiyor, yani kod
+# dogru calisiyordu ve hicbir test kizarmadi — ama uyari veriyordu ve ileriki
+# surumlerde hata olacak. Sessizce dogru calisan seyler boyle gozden kaciyor.
+import warnings
+
+uyarilar = []
+for kok, _, dosyalar in os.walk(KOK):
+    if ".git" in kok or (os.sep + "build") in kok or (os.sep + "dist") in kok:
+        continue
+    for dosya in dosyalar:
+        if not dosya.endswith(".py"):
+            continue
+        yol = os.path.join(kok, dosya)
+        with open(yol, encoding="utf-8") as f:
+            kod = f.read()
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            compile(kod, yol, "exec")
+            for x in w:
+                if "unclosed" in str(x.message):
+                    continue          # bu uyari testin kendi okumasindan gelir
+                uyarilar.append(f"{os.path.relpath(yol, KOK)}:{x.lineno} {x.message}")
+chk("hicbir dosyada SyntaxWarning yok", not uyarilar, uyarilar[:3])
+
+print("[8] Olu fonksiyon birikmemis")
+# diller.py'de dil_kaldir ve sistemden_listele hicbir yerden cagrilmiyordu
+# (41 satir). Kontrol AST ile yapiliyor: regex "self.x()" cagrilarini
+# kaciriyor ve her seyi olu gosteriyordu.
+import ast
+
+kaynaklar = ["metinkap.py", "arayuz.py", "ceviri.py", "diller.py"]
+hepsi = kaynaklar + [os.path.join("tests", d) for d in os.listdir(os.path.join(KOK, "tests"))
+                     if d.endswith(".py")]
+gecen = set()
+agaclar = {}
+for dosya in hepsi:
+    with open(os.path.join(KOK, dosya), encoding="utf-8") as f:
+        agaclar[dosya] = ast.parse(f.read())
+    for n in ast.walk(agaclar[dosya]):
+        if isinstance(n, ast.Name):
+            gecen.add(n.id)
+        elif isinstance(n, ast.Attribute):
+            gecen.add(n.attr)
+        elif isinstance(n, ast.Constant) and isinstance(n.value, str):
+            gecen.add(n.value)
+olu = []
+for dosya in kaynaklar:
+    for n in ast.walk(agaclar[dosya]):
+        if not isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if n.name.startswith("__"):
+            continue
+        if n.name in gecen:
+            continue
+        # getattr(self, "_sekme_" + anahtar) gibi kurulan adlar: on eki aranir
+        if any(n.name.startswith(p) for p in ("_sekme_",)):
+            continue
+        olu.append(f"{dosya}:{n.lineno} {n.name}")
+chk("cagrilmayan fonksiyon yok", not olu, olu)
+
 print("\nSONUC:", "HEPSI GECTI" if ok else "HATA VAR")
 sys.exit(0 if ok else 1)
